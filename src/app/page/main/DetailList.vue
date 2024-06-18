@@ -584,12 +584,12 @@ export default {
   position: absolute;
   display: inline-flex;
   width: 80%;
-  /deep/ .v-input__slot {
-    min-height: 32px !important;
-  }
-  /deep/ input {
-    margin-top: 0 !important;
-  }
+  ///deep/ .v-input__slot {
+  //  min-height: 32px !important;
+  //}
+  ///deep/ input {
+  //  margin-top: 0 !important;
+  //}
 }
 .list-title {
   position: absolute;

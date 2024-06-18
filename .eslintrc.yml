@@ -11,6 +11,7 @@ parserOptions:
   sourceType: module
 rules:
   no-console: 0
+  linebreak-style: 'off'
 globals:
   DEBUG: true
   PRODUCTION: true
