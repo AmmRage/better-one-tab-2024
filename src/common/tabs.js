@@ -58,6 +58,7 @@ const groupTabsInCurrentWindow = async () => {
 const isLegalURL = url => ILLEGAL_URLS.every(prefix => !url.startsWith(prefix))
 
 const storeTabs = async (tabs, listIndex) => {
+  console.log('storeTabs', tabs, listIndex)
   const appUrl = browser.runtime.getURL('')
   tabs = tabs.filter(i => !i.url.startsWith(appUrl))
   const opts = await storage.getOptions()
@@ -84,7 +85,7 @@ const storeTabs = async (tabs, listIndex) => {
       }
     }
   }
-  return browser.tabs.remove(tabs.map(i => i.id))
+  // return browser.tabs.remove(tabs.map(i => i.id))
 }
 
 const storeLeftTabs = async listIndex => storeTabs((await groupTabsInCurrentWindow()).left, listIndex)
@@ -92,6 +93,7 @@ const storeRightTabs = async listIndex => storeTabs((await groupTabsInCurrentWin
 const storeTwoSideTabs = async listIndex => storeTabs((await groupTabsInCurrentWindow()).twoSide, listIndex)
 
 const storeSelectedTabs = async listIndex => {
+  console.debug('storeSelectedTabs', listIndex)
   const tabs = await getSelectedTabs()
   const allTabs = await getAllTabsInCurrentWindow()
   if (tabs.length === allTabs.length) await openTabLists()

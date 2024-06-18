@@ -87,6 +87,7 @@ export default {
       this.flat = this.scrollY === 0
     },
     syncBtnClicked() {
+      console.log('syncBtnClicked')
       if (this.uploadSuccess) return
       if (!this.hasToken) {
         // TODO: temporarily hide the login shortcut

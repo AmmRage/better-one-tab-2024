@@ -330,6 +330,7 @@ export default {
   },
   created() {
     this.init()
+    console.log('lists', this.lists)
   },
   activated() {
     if (this.$route.query.listIndex != null) this.jumpTo(this.$route.query)

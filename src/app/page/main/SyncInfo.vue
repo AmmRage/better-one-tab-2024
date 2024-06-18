@@ -36,9 +36,19 @@
             {{ __('ui_manage_account') }}
           </v-btn>
 
-          <v-btn v-if="!hasToken" block color="success" :href="apiUrl + '/login'" target="_blank">
-            {{ __('ui_login') }}
+          <v-text-field v-if="!hasToken"  label="Your storage server, eg: https://example.com" v-model="syncServerHost"></v-text-field>
+
+          <v-text-field v-if="!hasToken"  label="Username" v-model="syncServerUsername"></v-text-field>
+
+          <v-text-field v-if="!hasToken"  label="Password" v-model="syncServerPassword"></v-text-field>
+
+          <v-btn v-if="!hasToken" block color="success" @click="this.login">
+            Login To Sync Server
           </v-btn>
+
+<!--          <v-btn v-if="!hasToken" block color="success" :href="apiUrl + '/login'" target="_blank">-->
+<!--            {{ __('ui_login') }}-->
+<!--          </v-btn>-->
 
         </v-card-text>
       </v-card>
@@ -60,10 +70,16 @@ export default {
     return {
       uid: '',
       apiUrl: SYNC_SERVICE_URL,
+      syncServerHost: '',
+      syncServerToken: '',
+      syncServerUsername: '',
+      syncServerPassword: '',
+      loading: false,
     }
   },
   created() {
     this.init()
+    console.log('SyncInfo created')
   },
   computed: {
     ...mapState(['hasToken']),
@@ -92,6 +108,34 @@ export default {
       this.uid = ''
       await boss.removeToken()
       await this.checkToken()
+    },
+    login(){
+      // console.log(this.syncServerHost)
+      // console.log(this.syncServerToken)
+      fetch(this.syncServerHost + '/api/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: this.syncServerUsername,
+          password: this.syncServerPassword,
+        })
+      })
+        .then(async response => {
+          console.log('Response:', response)
+          if (response.ok) {
+            const token = response.json()
+            this.syncServerToken = token
+            await boss.setToken(token)
+            await this.loadUID()
+          } else {
+            window.alert('Login failed')
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error)
+        })
     }
   }
 }

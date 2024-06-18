@@ -264,4 +264,5 @@ export default {
   login,
   init,
   refresh,
+  setToken
 }

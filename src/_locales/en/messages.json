@@ -6,7 +6,7 @@
     "message": "A better OneTab"
   },
   "menu_STORE_SELECTED_TABS": {
-    "message": "Store selected tabs"
+    "message": "Menu store selected tabs"
   },
   "menu_STORE_ALL_TABS_IN_CURRENT_WINDOW": {
     "message": "Store all tabs in current window"
@@ -36,7 +36,7 @@
     "message": "store into a titled list"
   },
   "cmd_store_selected_tabs": {
-    "message": "Store selected tabs"
+    "message": "Cmd store selected tabs"
   },
   "cmd_store_all_tabs": {
     "message": "Store all tabs"
@@ -144,7 +144,7 @@
     "message": "Popup simple list"
   },
   "opt_label_store_selected": {
-    "message": "Store selected tabs"
+    "message": "Opt store selected tabs"
   },
   "opt_label_store_all": {
     "message": "Store all tabs in current window"

@@ -15,7 +15,7 @@ Vue.config.devtools = true
 Vue.use(VueClipboard)
 Vue.use(Vuetify, {
   theme: {
-    primary: colors.lightBlue,
+    primary: colors.lightGreen,
   },
 })
 
