@@ -77,6 +77,10 @@ export const compareVersion = (a, b) => {
 
 export const sendMessage = async msg => {
   try {
+    // 在 Chrome 扩展程序中，await browser.runtime.sendMessage(msg)
+    // 用于向扩展的后台脚本发送异步消息。
+    // 这一功能通常用于扩展的不同部分之间进行通信，比如从内容脚本向后台脚本发送请求。
+    // console.debug('send message', msg)
     await browser.runtime.sendMessage(msg)
   } catch (err) {
     if (err.message === 'Could not establish connection. Receiving end does not exist.') {

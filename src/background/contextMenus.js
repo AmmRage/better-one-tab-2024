@@ -122,7 +122,7 @@ export const setupContextMenus = async ({pageContext, allContext}) => {
   }
   const lists = await storage.getLists()
   window.contextMenusClickedHandler = info => {
-    console.log('context menu clicked', info.menuItemId)
+    // console.log('context menu clicked', info.menuItemId)
     if (info.menuItemId.startsWith('STORE_TO_TITLED_LIST')) {
       const [key, listIndex] = info.menuItemId.split('|')
       _.get(menus, key)(+listIndex)

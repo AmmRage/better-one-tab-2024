@@ -85,7 +85,7 @@ const storeTabs = async (tabs, listIndex) => {
       }
     }
   }
-  // return browser.tabs.remove(tabs.map(i => i.id))
+  return browser.tabs.remove(tabs.map(i => i.id))
 }
 
 const storeLeftTabs = async listIndex => storeTabs((await groupTabsInCurrentWindow()).left, listIndex)
@@ -93,7 +93,7 @@ const storeRightTabs = async listIndex => storeTabs((await groupTabsInCurrentWin
 const storeTwoSideTabs = async listIndex => storeTabs((await groupTabsInCurrentWindow()).twoSide, listIndex)
 
 const storeSelectedTabs = async listIndex => {
-  console.debug('storeSelectedTabs', listIndex)
+  // console.debug('storeSelectedTabs', listIndex)
   const tabs = await getSelectedTabs()
   const allTabs = await getAllTabsInCurrentWindow()
   if (tabs.length === allTabs.length) await openTabLists()
@@ -148,13 +148,13 @@ const restoreListInNewWindow = async list => {
   })
 }
 
-const restoreLastestList = async () => {
+const restoreLatestList = async () => {
   const lists = await storage.getLists()
   if (lists.length === 0) return true
-  const [lastest] = lists
-  await restoreList(lastest)
-  if (lastest.pinned) return true
-  return listManager.removeListById(lastest._id)
+  const [latest] = lists
+  await restoreList(latest)
+  if (latest.pinned) return true
+  return listManager.removeListById(latest._id)
 }
 
 export default {
@@ -169,7 +169,7 @@ export default {
   restoreTabs,
   restoreList,
   restoreListInNewWindow,
-  restoreLastestList,
+  restoreLatestList,
   openTabLists,
   openAboutPage,
 }

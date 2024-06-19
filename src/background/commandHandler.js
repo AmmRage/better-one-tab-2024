@@ -4,7 +4,7 @@ const commands = {
   'store-selected-tabs': tabs.storeSelectedTabs,
   'store-all-tabs': tabs.storeAllTabs,
   'store-all-in-all-windows': tabs.storeAllTabInAllWindows,
-  'restore-lastest-list': tabs.restoreLastestList,
+  'restore-lastest-list': tabs.restoreLatestList,
   'open-lists': tabs.openTabLists,
 }
 

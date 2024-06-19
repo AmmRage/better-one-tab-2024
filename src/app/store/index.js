@@ -13,7 +13,7 @@ import lists from './lists'
 Vue.use(Vuex)
 listManager.init()
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   strict: DEBUG,
   state: {
     opts: options.getDefaultOptions(),    // all options
@@ -22,6 +22,8 @@ export default new Vuex.Store({
     nightmode: false,                     // nightmode status
     snackbar: { status: false, msg: '' }, // snackbar status
     scrollY: 0,
+    syncServerHost: '',
+    username: '',
     ...lists.state,
   },
   getters: {
@@ -33,8 +35,14 @@ export default new Vuex.Store({
         state.opts[k] = v
       }
     },
-    setToken(state, payload) {
+    setHasToken(state, payload) {
       state.hasToken = payload
+    },
+    setSyncServerHost(state, payload) {
+      state.syncServerHost = payload
+    },
+    setUsername(state, payload) {
+      state.username = payload
     },
     setDrawer(state, drawer) {
       state.drawer = drawer
@@ -59,7 +67,13 @@ export default new Vuex.Store({
       commit('setOption', await storage.getOptions())
     },
     async checkToken({commit}) {
-      commit('setToken', await boss.hasToken())
+      commit('setHasToken', await boss.hasToken())
+    },
+    updateSyncServerHost({commit}, host) {
+      commit('setSyncServerHost', host)
+    },
+    updateUsername({commit}, name) {
+      commit('setUsername', name)
     },
     async loadDrawer({commit}) {
       const window = await browser.runtime.getBackgroundPage()
@@ -75,7 +89,7 @@ export default new Vuex.Store({
       window.nightmode = _.defaultTo(window.nightmode, state.opts.defaultNightMode)
       commit('setNightmode', window.nightmode)
     },
-    async switchNightmode({commit, state}) {
+    async switchNightMode({commit, state}) {
       const window = await browser.runtime.getBackgroundPage()
       commit('setNightmode', window.nightmode = !state.nightmode)
     },
@@ -90,3 +104,4 @@ export default new Vuex.Store({
     listManager.createVuexPlugin(),
   ],
 })
+export default store

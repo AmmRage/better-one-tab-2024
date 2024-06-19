@@ -7,7 +7,7 @@ import {setupContextMenus} from './contextMenus'
 import {updateBrowserAction} from './browserAction'
 
 const messageHandler = async msg => {
-  console.debug('received', msg)
+  console.debug('messageHandler received: ', msg)
   if (msg.optionsChanged) {
     const changes = msg.optionsChanged
     console.debug('options changed', changes)
@@ -40,6 +40,9 @@ const messageHandler = async msg => {
   }
   if (msg.refresh) {
     boss.refresh()
+  }
+  if (msg.logout) {
+    boss.removeToken()
   }
   if (msg.import) {
     const {lists} = msg.import

@@ -63,17 +63,17 @@ import {SYNC_SERVICE_URL} from '@/common/constants'
 import {formatTime} from '@/common/utils'
 import boss from '@/common/service/boss'
 import browser from 'webextension-polyfill'
-import {mapState, mapActions} from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   data() {
     return {
       uid: '',
       apiUrl: SYNC_SERVICE_URL,
-      syncServerHost: '',
+      syncServerHost: 'http://127.0.0.1:9401',
       syncServerToken: '',
-      syncServerUsername: '',
-      syncServerPassword: '',
+      syncServerUsername: 'admin123',
+      syncServerPassword: 'password456',
       loading: false,
     }
   },
@@ -90,8 +90,8 @@ export default {
   },
   methods: {
     __,
+    ...mapActions(['checkToken', 'updateSyncServerHost', 'updateUsername']),
     formatTime,
-    ...mapActions(['checkToken']),
     async loadUID() {
       await this.checkToken()
       if (!this.hasToken) return
@@ -101,7 +101,7 @@ export default {
     init() {
       this.loadUID()
       browser.runtime.onMessage.addListener(({logged}) => {
-        this.uid = logged.uid
+        // this.uid = logged.uid
       })
     },
     async turnOff() {
@@ -122,18 +122,23 @@ export default {
           password: this.syncServerPassword,
         })
       })
-        .then(async response => {
-          console.log('Response:', response)
-          if (response.ok) {
-            const token = response.json()
+        .then(async response => response.json())
+        .then(async data => {
+          console.log('data:', data)
+          if (data) {
+            const token = data
             this.syncServerToken = token
+            await boss.setSyncServerHost(this.syncServerHost)
+            await boss.setUsername(this.syncServerUsername)
             await boss.setToken(token)
-            await this.loadUID()
+
+            this.updateSyncServerHost(this.syncServerHost)
+            this.updateUsername(this.syncServerUsername)
           } else {
             window.alert('Login failed')
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Error:', error)
         })
     }

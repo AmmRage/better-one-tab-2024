@@ -10,19 +10,25 @@ import {
 } from './constants'
 import {isBackground, sendMessage, Mutex} from './utils'
 
-const cache = { lists: null, ops: null }
+const cache = {
+  lists: null,
+  ops: null,
+}
 const RWLock = new Mutex()
 const getStorage = async () => {
   const unlockRW = await RWLock.lock()
   if (cache.lists && cache.ops) return cache
-  const {lists, ops} = await browser.storage.local.get(['lists', 'ops'])
+  const {
+    lists,
+    ops,
+  } = await browser.storage.local.get(['lists', 'ops'])
   cache.lists = lists || []
   cache.ops = ops || []
   await unlockRW()
   return cache
 }
 const compressOps = ops => {
-  console.debug('[listManager] compress ops: (before)', ops)
+  // console.debug('[listManager] compress ops: (before)', ops)
   const removed = []
   const updated = {}
   const finalOps = []
@@ -30,7 +36,9 @@ const compressOps = ops => {
     const op = ops[i]
     // ignore all actions for the list if that list will be removed finally
     if (op.args && op.args[0] && removed.includes(op.args[0]._id)
-      || typeof op.args[0] === 'string' && removed.includes(op.args[0])) continue
+      || typeof op.args[0] === 'string' && removed.includes(op.args[0])) {
+      continue
+    }
 
     if (op.method === 'removeListById') {
       removed.push(op.args[0])
@@ -46,13 +54,18 @@ const compressOps = ops => {
         continue
       } else {
         updated[listId] = Object.assign({}, newList)
-        finalOps.unshift({method: 'updateListById', args: [listId, updated[listId], time]})
+        finalOps.unshift({
+          method: 'updateListById',
+          args: [listId, updated[listId], time],
+        })
       }
     } else if (op.method === 'changeListOrderRelatively') {
       // combine the value if a list is reordered continuously
       if (i > 0 && ops[i - 1].method === 'changeListOrderRelatively' && op.args[0] === ops[i - 1].args[0]) {
         ops[i - 1].args[1] += ops[i].args[1]
-      } else finalOps.unshift(op)
+      } else {
+        finalOps.unshift(op)
+      }
     } else {
       // do nothing if add a list
       finalOps.unshift(op)
@@ -101,13 +114,13 @@ const saveStorage = async (lists, ops) => {
   const unlock = await RWLock.lock()
   const data = {
     lists,
-    ops: compressOps(ops)
+    ops: compressOps(ops),
   }
   await browser.storage.local.set(data)
   cache.lists = cache.ops = null
   await sendMessage({refresh: true})
   await unlock()
-  console.log('[list manager] save storage:', data)
+  console.debug('[list manager] save storage:', data)
 }
 // avoid getting storage at the same time
 const _modifyQueue = []
@@ -115,11 +128,20 @@ const _startModifyWork = (lists, ops) => new Promise(resolve => {
   while (_modifyQueue.length) {
     const [method, args] = _modifyQueue.shift()
     const opArgs = manager.modifiers[method](lists, args)
-    if (opArgs) ops.push({method, args: opArgs, time: Date.now()})
+    if (opArgs) {
+      ops.push({
+        method,
+        args: opArgs,
+        time: Date.now(),
+      })
+    }
   }
   setTimeout(() => {
-    if (_modifyQueue.length) _startModifyWork(lists, ops).then(resolve)
-    else resolve()
+    if (_modifyQueue.length) {
+      _startModifyWork(lists, ops).then(resolve)
+    } else {
+      resolve()
+    }
   }, 100)
 })
 
@@ -129,27 +151,52 @@ const applyChangesToStorage = async (method, args) => {
   // not need to start work if modify work is processing
   if (_working) return
   _working = true
-  const {lists, ops} = await getStorage()
+  const {
+    lists,
+    ops,
+  } = await getStorage()
   await _startModifyWork(lists, ops)
   // from here won't modify data if do not call start function
   _working = false
   await saveStorage(lists, ops)
 }
-const addEventListener = (receiveFrom, callback) => browser.runtime.onMessage.addListener(({listModifed, from}) => {
-  if (receiveFrom !== from || !listModifed) return
-  const {method, args} = listModifed
+const addEventListener = (receiveFrom, callback) => browser.runtime.onMessage.addListener(({
+  listModified,
+  from,
+}) => {
+  if (receiveFrom !== from || !listModified) return
+  const {
+    method,
+    args,
+  } = listModified
   return callback(method, args)
 })
 const genMethods = isBackground => {
   Object.keys(manager.modifiers).forEach(method => {
-    manager[method] = isBackground ? async (...args) => { // for background
-      console.debug('[list manager] modify list:', method, ...args)
-      await sendMessage({listModifed: {method, args}, from: END_BACKGROUND})
-      // no need to await changes applied for close tabs immediately
-      applyChangesToStorage(method, args)
-    } : async (...args) => { // for front end
-      console.debug('[list manager] call to modify list:', name, ...args)
-      await sendMessage({listModifed: {method, args}, from: END_FRONT})
+    if (isBackground) {
+      manager[method] = async (...args) => { // for background
+        // console.debug('[list manager] [code generate] modify list:', method, ...args)
+        await sendMessage({
+          listModified: {
+            method,
+            args,
+          },
+          from: END_BACKGROUND,
+        })
+        // no need to await changes applied for close tabs immediately
+        applyChangesToStorage(method, args)
+      }
+    } else {
+      manager[method] = async (...args) => { // for front end
+        // console.debug('[list manager] call to modify list:', name, ...args)
+        await sendMessage({
+          listModified: {
+            method,
+            args,
+          },
+          from: END_FRONT,
+        })
+      }
     }
   })
 }
@@ -165,19 +212,30 @@ manager.mapMutations = () => {
   Object.entries(manager.modifiers).forEach(([method, fn]) => {
     mutations[method] = (state, payload) => fn(state.lists, payload)
   })
-  mutations.receiveData = (state, {method, args}) => {
+  mutations.receiveData = (state, {
+    method,
+    args,
+  }) => {
     manager.modifiers[method](state.lists, args)
   }
   return mutations
 }
 manager.createVuexPlugin = () => store => {
   addEventListener(END_BACKGROUND, (method, args) => {
-    store.commit('receiveData', {method, args})
+    store.commit('receiveData', {
+      method,
+      args,
+    })
   })
   browser.runtime.onMessage.addListener(({refreshed}) => {
-    if (refreshed && refreshed.success) store.dispatch('getLists')
+    if (refreshed && refreshed.success) {
+      store.dispatch('getLists')
+    }
   })
-  store.subscribe(({type, payload}) => {
+  store.subscribe(({
+    type,
+    payload,
+  }) => {
     if (type in manager.modifiers) {
       manager[type](...payload)
     }

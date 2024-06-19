@@ -3,7 +3,7 @@ import {
   AUTH_HEADER,
   SYNC_SERVICE_URL,
   SYNC_MAX_INTERVAL,
-  SYNC_MIN_INTERVAL,
+  SYNC_MIN_INTERVAL, SYNC_SERVER_HOST_KEY, USER_NAME_KEY,
 } from '../constants'
 import _ from 'lodash'
 import storage from '../storage'
@@ -30,6 +30,34 @@ const setToken = async token => {
 const removeToken = async () => {
   await browser.storage.local.remove(TOKEN_KEY)
   await browser.storage.sync.remove(TOKEN_KEY)
+}
+
+//Sync Server Host
+const getSyncServerHost = async () => {
+  const {syncServerHost: localSyncServerHost} = await browser.storage.local.get(SYNC_SERVER_HOST_KEY)
+  if (localSyncServerHost) return localSyncServerHost
+  const {token: remoteSyncServerHost} = await browser.storage.sync.get(SYNC_SERVER_HOST_KEY)
+  if (remoteSyncServerHost) return remoteSyncServerHost
+}
+
+const setSyncServerHost = async syncServerHost => {
+  await browser.storage.local.set({[SYNC_SERVER_HOST_KEY]: syncServerHost, tokenIssued: Date.now()})
+  await browser.storage.sync.set({[SYNC_SERVER_HOST_KEY]: syncServerHost})
+  console.log('syncServerHost: ', syncServerHost)
+}
+
+//User name
+const getUsername = async () => {
+  const {syncServerHost: localUsername} = await browser.storage.local.get(USER_NAME_KEY)
+  if (localUsername) return localUsername
+  const {token: remoteUsername} = await browser.storage.sync.get(USER_NAME_KEY)
+  if (remoteUsername) return remoteUsername
+}
+
+const setUsername = async syncUsername => {
+  await browser.storage.local.set({[USER_NAME_KEY]: syncUsername, tokenIssued: Date.now()})
+  await browser.storage.sync.set({[USER_NAME_KEY]: syncUsername})
+  console.log('syncUsername: ', syncUsername)
 }
 
 const fetchData = async (uri = '', method = 'GET', data = {}) => {
@@ -64,11 +92,13 @@ const fetchData = async (uri = '', method = 'GET', data = {}) => {
   throw new Error(err.message)
 }
 
-const getInfo = () => fetchData('/api/info').then(info => {
-  info.optsUpdatedAt = Date.parse(info.optsUpdatedAt) || 0
-  info.listsUpdatedAt = Date.parse(info.listsUpdatedAt) || 0
-  return info
-})
+const getInfo = () => {
+  fetchData('/api/info').then(info => {
+    info.optsUpdatedAt = Date.parse(info.optsUpdatedAt) || 0
+    info.listsUpdatedAt = Date.parse(info.listsUpdatedAt) || 0
+    return info
+  })
+}
 
 const setWSToken = token => {
   if (!window._socket) return
@@ -264,5 +294,9 @@ export default {
   login,
   init,
   refresh,
-  setToken
+  setToken,
+  getSyncServerHost,
+  setSyncServerHost,
+  getUsername,
+  setUsername
 }
