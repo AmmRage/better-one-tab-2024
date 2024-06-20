@@ -463,10 +463,10 @@ export default {
         return this.lists[listIndex].tabs[tabIndex]
       })
       items.sort((a, b) => b.tabIndex - a.tabIndex)
-          .forEach(({
-            listIndex,
-            tabIndex,
-          }) => this.removeTabDirectly([listIndex, tabIndex]))
+        .forEach(({
+          listIndex,
+          tabIndex,
+        }) => this.removeTabDirectly([listIndex, tabIndex]))
 
       if (targetListIndex === -1) {
         const newList = createNewTabList({tabs})
@@ -525,16 +525,17 @@ export default {
     },
     removeSelectedItems() {
       const items = this.getSelectedItems()
+      console.log('removeSelectedItems', items)
       if (!(items && items.length)) return
       const changedLists = []
       items.sort((a, b) => b.tabIndex - a.tabIndex)
-          .forEach(({
-            listIndex,
-            tabIndex,
-          }) => {
-            changedLists.push(listIndex)
-            this.removeTabDirectly([listIndex, tabIndex])
-          })
+        .forEach(({
+          listIndex,
+          tabIndex,
+        }) => {
+          changedLists.push(listIndex)
+          this.removeTabDirectly([listIndex, tabIndex])
+        })
       this.tabMoved(changedLists)
     },
     changePage(page) {

@@ -42,6 +42,7 @@ const messageHandler = async msg => {
     boss.refresh()
   }
   if (msg.logout) {
+    console.debug('logout', msg.logout)
     boss.removeToken()
   }
   if (msg.import) {

@@ -15,6 +15,8 @@ import {
 
 listManager.init()
 
+//another Vuex store module
+
 export default {
   state: {
     lists: [],
@@ -253,5 +255,4 @@ export default {
       commit(UPDATE_LIST_BY_ID, [list._id, {tags}])
     },
   },
-
 }

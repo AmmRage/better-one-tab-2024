@@ -62,7 +62,6 @@ const initOptions = async () => {
 
 const storageChangedHandler = changes => {
   console.debug('[storage changed]', changes)
-
   if (changes.boss_token) {
     window.boss_token = changes.boss_token
   }

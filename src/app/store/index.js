@@ -24,7 +24,7 @@ const store = new Vuex.Store({
     scrollY: 0,
     syncServerHost: '',
     username: '',
-    ...lists.state,
+    ...lists.state, // include lists state
   },
   getters: {
     ...lists.getters,

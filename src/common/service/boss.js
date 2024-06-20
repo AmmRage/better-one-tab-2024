@@ -221,21 +221,21 @@ const refresh = async () => {
 }
 
 const login = async token => {
-  if (await hasToken()) return
-  await setToken(token)
-  const {uid} = await getInfo()
-  await sendMessage({logged: {uid}})
-  const loginNotificationId = 'login'
-  browser.notifications.create(loginNotificationId, {
-    type: 'basic',
-    iconUrl: 'assets/icons/icon_128.png',
-    title: 'you have login to boss successfully',
-    message: '',
-  })
-  setTimeout(() => {
-    browser.notifications.clear(loginNotificationId)
-  }, 5000)
-  await refresh()
+  // if (await hasToken()) return
+  // await setToken(token)
+  // const {uid} = await getInfo()
+  // await sendMessage({logged: {uid}})
+  // const loginNotificationId = 'login'
+  // browser.notifications.create(loginNotificationId, {
+  //   type: 'basic',
+  //   iconUrl: 'assets/icons/icon_128.png',
+  //   title: 'you have login to boss successfully',
+  //   message: '',
+  // })
+  // setTimeout(() => {
+  //   browser.notifications.clear(loginNotificationId)
+  // }, 5000)
+  // await refresh()
 }
 
 const initTimer = async () => {
