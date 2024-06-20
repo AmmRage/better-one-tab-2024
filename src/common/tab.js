@@ -7,5 +7,8 @@ export const normalizeTab = tab => {
   const normalizedTab = _.pick(tab, PICKED_TAB_PROPS)
   normalizedTab.muted = normalizedTab.muted || tab.mutedInfo && tab.mutedInfo.muted
   normalizedTab.uuid = uuidv4()
+  if (!normalizedTab.favIconUrl){
+    normalizedTab.favIconUrl = ''
+  }
   return normalizedTab
 }
