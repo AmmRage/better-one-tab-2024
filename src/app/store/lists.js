@@ -12,6 +12,7 @@ import {
   REMOVE_LIST_BY_ID,
   CHANGE_LIST_ORDER,
 } from '@/common/constants'
+import browser from 'webextension-polyfill'
 
 listManager.init()
 
@@ -126,9 +127,13 @@ export default {
       return dispatch('getLists')
     },
     async getLists({commit}) {
+      browser.storage.local.get('lists').then(items => {
+        // console.log('lists is:', items)
+      })
       const lists = await storage.getLists()
-      if (lists) commit('setLists', lists)
-      console.debug('getLists', lists)
+      // console.debug('getLists', lists)
+      if (lists)
+        commit('setLists', lists)
     },
     itemClicked({
       dispatch,

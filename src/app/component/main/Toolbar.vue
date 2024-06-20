@@ -1,9 +1,12 @@
 <template>
 <v-toolbar app clipped-left :color="nightmode ? null : 'primary'" :flat="flat" v-scroll="onScroll">
   <v-toolbar-side-icon dark @click="switchDrawer"></v-toolbar-side-icon>
-  <v-toolbar-title class="white--text">Better OneTab</v-toolbar-title>
+  <v-toolbar-title class="white--text">Better OneTab 2024</v-toolbar-title>
   <v-spacer></v-spacer>
   <search-form v-if="!opts.disableSearch"></search-form>
+  <v-spacer></v-spacer>
+
+  <v-toolbar-title v-if="lastUpdate!==''" class="white--text">Last sync: {{lastUpdate}}</v-toolbar-title>
   <v-spacer></v-spacer>
 
   <v-tooltip left>
@@ -58,10 +61,9 @@
 
 
   <v-snackbar
-      v-model="this.snackbar"
+      v-model="snackbar"
       :timeout="3000"
       top
-      dark
   >
     {{this.snackbarMessage}}
     <v-btn color="pink" flat @click="this.snackbar = false">Close</v-btn>
@@ -72,13 +74,12 @@
 import __ from '@/common/i18n'
 import searchForm from './SearchForm'
 import dynamicTime from '@/app/component/DynamicTime'
-import browser from 'webextension-polyfill'
 import {SYNC_SERVICE_URL} from '@/common/constants'
-import {mapState, mapActions, mapMutations} from 'vuex'
-import {sendMessage} from '@/common/utils'
 import {setToken, removeToken, getToken } from '@/common/service/boss'
 import 'material-icons/iconfont/material-icons.css'
+import {mapActions, mapMutations, mapState} from 'vuex'
 import {TOKEN_KEY} from '../../../common/constants'
+import {sendMessage} from '../../../common/utils'
 
 export default {
   data() {
@@ -90,6 +91,7 @@ export default {
       token: '',
       snackbarMessage: '',
       snackbar: false,
+      lastUpdate: ''
     }
   },
   components: {
@@ -121,6 +123,12 @@ export default {
       this.setHasToken(hasToken)
       console.debug(`Toolbar init, hasToken: ${hasToken}, token: ${this.token}`)
     })
+    browser.storage.local.get('updated_at').then((result) => {
+      // eslint-disable-next-line no-undefined
+      if (result['updated_at'] !== undefined && result['updated_at'] !== null && result['updated_at'] !== '') {
+        this.lastUpdate = new Date(result['updated_at'] * 1000).toLocaleString()
+      }
+    })
 
     // 监听存储变化
     browser.storage.onChanged.addListener((changes, area) => {
@@ -138,6 +146,13 @@ export default {
         }
         this.setHasToken(hasToken)
         console.debug(`Toolbar onChanged, hasToken: ${hasToken}, token: ${this.token}`)
+      }
+
+      if (area === 'local' && changes['updated_at']) {
+        console.debug('snackbar changes: ', changes)
+        this.lastUpdate = new Date(changes.updated_at.newValue * 1000).toLocaleString()
+        this.snackbarMessage = `uploaded to server at ${this.lastUpdate}`
+        this.snackbar = true
       }
     })
   },
@@ -183,9 +198,9 @@ export default {
           syncServerHost = items.syncServerHost
           token = items.token
           username = items.username
-          console.debug('syncServerHost:', syncServerHost)
-          console.debug('token:', token)
-          console.debug('username:', username)
+          // console.debug('syncServerHost:', syncServerHost)
+          // console.debug('token:', token)
+          // console.debug('username:', username)
 
           if (syncServerHost !== '' && token !== '' && username !== '' &&
               syncServerHost !== null && token !== null && username !== null
@@ -203,7 +218,7 @@ export default {
             })
               .then(async response => response.json())
               .then(async data => {
-                console.log('data:', data)
+                // console.log('data:', data)
               })
               .catch(error => {
                 console.error('Error:', error)
@@ -223,20 +238,22 @@ export default {
           let syncServerHost = ''
           let token = ''
           let username = ''
-          console.log('The value of myKey is:', items.syncServerHost)
+          // console.log('The value of myKey is:', items.syncServerHost)
           syncServerHost = items.syncServerHost
           token = items.token
           username = items.username
-          console.debug('syncServerHost:', syncServerHost)
-          console.debug('token:', token)
-          console.debug('username:', username)
+          // console.debug('syncServerHost:', syncServerHost)
+          // console.debug('token:', token)
+          // console.debug('username:', username)
 
 
           if (syncServerHost !== '' && token !== '' && username !== '' &&
-              syncServerHost !== null && token !== null && username !== null
+              syncServerHost !== null && token !== null && username !== null &&
+              // eslint-disable-next-line no-undefined
+              syncServerHost !== undefined && token !== undefined && username !== undefined
           ) {
-            console.log('host:', syncServerHost)
-            console.log('username:', username)
+            // console.log('host:', syncServerHost)
+            // console.log('username:', username)
             fetch(syncServerHost + `/api/user/${username}/tabs?token=${token}`, {
               method: 'GET',
               headers: {
@@ -247,7 +264,7 @@ export default {
                 return response.json()
               })
               .then(async data => {
-                console.log('Get tabs response:', data)
+                // console.log('Get tabs response:', data)
 
                 if (data && data.tabs) {
                   this.$store.commit('setLists', data.tabs)
@@ -268,6 +285,9 @@ export default {
                 this.snackbar = true
               })
           }
+        } else {
+          this.snackbarMessage = `You got error when read local storage`
+          this.snackbar = true
         }
       })
     },
@@ -279,7 +299,7 @@ export default {
         // return browser.tabs.create({url: SYNC_SERVICE_URL + '/login'})
       }
 
-      console.log('lists: ', this.lists)
+      // console.log('lists: ', this.lists)
       if (this.lists === null || this.lists.length === 0) {
         return
       }
@@ -293,12 +313,14 @@ export default {
           syncServerHost = items.syncServerHost
           token = items.token
           username = items.username
-          console.debug('syncServerHost:', syncServerHost)
-          console.debug('token:', token)
-          console.debug('username:', username)
+          // console.debug('syncServerHost:', syncServerHost)
+          // console.debug('token:', token)
+          // console.debug('username:', username)
 
           if (syncServerHost !== '' && token !== '' && username !== '' &&
-              syncServerHost !== null && token !== null && username !== null
+              syncServerHost !== null && token !== null && username !== null &&
+              // eslint-disable-next-line no-undefined
+              syncServerHost !== undefined && token !== undefined && username !== undefined
           ) {
             fetch(syncServerHost + `/api/user/${username}/tabs`, {
               method: 'POST',
@@ -313,14 +335,19 @@ export default {
             })
               .then(async response => response.json())
               .then(async data => {
-                console.log('data:', data)
+                // console.log('data:', data)
 
                 this.snackbarMessage = 'Load tabs from server successfully'
                 this.snackbar = true
               })
               .catch(error => {
                 console.error('Error:', error)
+                this.snackbarMessage = 'You got error when syncing tabs to server' + error
+                this.snackbar = true
               })
+          } else {
+            this.snackbarMessage = `wrong syncServerHost or token or username: ${syncServerHost}, ${token}, ${username}`
+            this.snackbar = true
           }
         } else {
           console.log('The key myKey does not exist in local storage.')

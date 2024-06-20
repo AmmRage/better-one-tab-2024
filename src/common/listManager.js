@@ -71,7 +71,7 @@ const compressOps = ops => {
       finalOps.unshift(op)
     }
   }
-  console.debug('[listManager] compress ops: (after)', finalOps)
+  // console.debug('[listManager] compress ops: (after)', finalOps)
   return finalOps
 }
 
@@ -120,7 +120,7 @@ const saveStorage = async (lists, ops) => {
   cache.lists = cache.ops = null
   await sendMessage({refresh: true})
   await unlock()
-  console.debug('[list manager] save storage:', data)
+  // console.debug('[list manager] save storage:', data)
 }
 // avoid getting storage at the same time
 const _modifyQueue = []

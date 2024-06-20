@@ -61,29 +61,31 @@ const initOptions = async () => {
 }
 
 const storageChangedHandler = changes => {
-  console.debug('[storage changed]', changes)
+  // console.debug('[storage changed]', changes)
   if (changes.boss_token) {
     window.boss_token = changes.boss_token
   }
   if (changes.lists) {
     if (changes.lists.newValue && changes.lists.newValue.length) {
-      console.log('tabs to upload:', changes.lists.newValue)
+      // console.log('tabs to upload:', changes.lists.newValue)
       let syncServerHost = ''
       let token = ''
       let username = ''
 
       chrome.storage.local.get(null, items => {
         if (items) {
-          console.log('The value of myKey is:', items.syncServerHost)
+          // console.log('The value of myKey is:', items.syncServerHost)
           syncServerHost = items.syncServerHost
           token = items.token
           username = items.username
-          console.debug('syncServerHost:', syncServerHost)
-          console.debug('token:', token)
-          console.debug('username:', username)
+          // console.debug('syncServerHost:', syncServerHost)
+          // console.debug('token:', token)
+          // console.debug('username:', username)
 
           if (syncServerHost !== '' && token !== '' && username !== '' &&
-            syncServerHost !== null && token !== null && username !== null
+            syncServerHost !== null && token !== null && username !== null &&
+            // eslint-disable-next-line no-undefined
+            syncServerHost !== undefined && token !== undefined && username !== undefined
           ) {
             fetch(syncServerHost + `/api/user/${username}/tabs`, {
               method: 'POST',
@@ -98,7 +100,13 @@ const storageChangedHandler = changes => {
             })
               .then(async response => response.json())
               .then(async data => {
-                console.log('data:', data)
+                // console.log('data:', data)
+
+                chrome.storage.local.set({
+                  snackbar: true,
+                  snackbarMessage: 'Tabs uploaded successfully',
+                  updated_at: data.updated_at
+                })
               })
               .catch(error => {
                 console.error('Error:', error)

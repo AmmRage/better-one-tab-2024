@@ -2,9 +2,13 @@
 <div>
   <v-layout>
     <v-flex xs12 sm6 offset-sm3>
+      <h2 style="margin-bottom: 50px">
+        This extension is a fork of https://github.com/cnwangjie/better-onetab, which is not maintained anymore.
+        For more information about the original extension, please visit the original repository.
+        The motivation of this fork is to learn rust by create a simple server to host the tabs api.
+      </h2>
       <v-card>
         <v-list>
-
           <v-list-tile avatar>
             <v-list-tile-avatar tile>
               <img src="~@/assets/icons/icon_128.png">
@@ -28,7 +32,9 @@
 
         </v-list>
       </v-card>
-      <v-subheader>Change Logs</v-subheader>
+
+
+      <v-subheader class="mt-4">Change Logs</v-subheader>
       <v-btn flat block href="https://github.com/cnwangjie/better-onetab/blob/master/CHANGELOG.md">Click to view the whole change logs</v-btn>
     </v-flex>
   </v-layout>

@@ -30,6 +30,8 @@ const setToken = async token => {
 const removeToken = async () => {
   await browser.storage.local.remove(TOKEN_KEY)
   await browser.storage.sync.remove(TOKEN_KEY)
+  await browser.storage.local.remove(USER_NAME_KEY)
+  await browser.storage.sync.remove(USER_NAME_KEY)
 }
 
 //Sync Server Host
@@ -43,7 +45,7 @@ const getSyncServerHost = async () => {
 const setSyncServerHost = async syncServerHost => {
   await browser.storage.local.set({[SYNC_SERVER_HOST_KEY]: syncServerHost, tokenIssued: Date.now()})
   await browser.storage.sync.set({[SYNC_SERVER_HOST_KEY]: syncServerHost})
-  console.log('syncServerHost: ', syncServerHost)
+  // console.log('syncServerHost: ', syncServerHost)
 }
 
 //User name
@@ -244,7 +246,7 @@ const initTimer = async () => {
   const _nextTimer = time => {
     window._syncTimer = setTimeout(async () => {
       if (await hasToken()) {
-        getInfo() // for update token
+        // getInfo() // for update token
         if (window._socket && window._socket.connected) {
           refresh()
           return _nextTimer(time)

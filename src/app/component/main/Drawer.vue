@@ -68,7 +68,7 @@
         <v-icon small>open_in_new</v-icon>
       </v-list-tile-action>
     </v-list-tile>
-    <v-list-tile href="https://github.com/cnwangjie/better-onetab/issues/new/choose">
+    <v-list-tile target="_blank" href="https://github.com/AmmRage/better-one-tab-2024/issues/new/choose">
       <v-list-tile-action>
         <v-icon>feedback</v-icon>
       </v-list-tile-action>
@@ -76,22 +76,22 @@
         {{ __('ui_create_issue') }}
       </v-list-tile-content>
     </v-list-tile>
-    <v-list-tile href="https://gitter.im/better-onetab/Lobby?utm_source=app">
-      <v-list-tile-action>
-        <v-icon>fab fa-gitter</v-icon>
-      </v-list-tile-action>
-      <v-list-tile-content>
-        Gitter
-      </v-list-tile-content>
-    </v-list-tile>
-    <v-list-tile href="https://github.com/cnwangjie/better-onetab">
-      <v-list-tile-action>
-        <v-icon>fab fa-github</v-icon>
-      </v-list-tile-action>
-      <v-list-tile-content>
-        {{ __('ui_github') }}
-      </v-list-tile-content>
-    </v-list-tile>
+<!--    <v-list-tile href="https://gitter.im/better-onetab/Lobby?utm_source=app">-->
+<!--      <v-list-tile-action>-->
+<!--        <v-icon>fab fa-gitter</v-icon>-->
+<!--      </v-list-tile-action>-->
+<!--      <v-list-tile-content>-->
+<!--        Gitter-->
+<!--      </v-list-tile-content>-->
+<!--    </v-list-tile>-->
+<!--    <v-list-tile href="https://github.com/cnwangjie/better-onetab">-->
+<!--      <v-list-tile-action>-->
+<!--        <v-icon>fab fa-github</v-icon>-->
+<!--      </v-list-tile-action>-->
+<!--      <v-list-tile-content>-->
+<!--        {{ __('ui_github') }}-->
+<!--      </v-list-tile-content>-->
+<!--    </v-list-tile>-->
   </v-list>
 </v-navigation-drawer>
 </template>

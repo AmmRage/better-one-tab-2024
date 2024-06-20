@@ -7,7 +7,7 @@ import {setupContextMenus} from './contextMenus'
 import {updateBrowserAction} from './browserAction'
 
 const messageHandler = async msg => {
-  console.debug('messageHandler received: ', msg)
+  // console.debug('messageHandler received: ', msg)
   if (msg.optionsChanged) {
     const changes = msg.optionsChanged
     console.debug('options changed', changes)

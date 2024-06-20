@@ -58,7 +58,7 @@ const groupTabsInCurrentWindow = async () => {
 const isLegalURL = url => ILLEGAL_URLS.every(prefix => !url.startsWith(prefix))
 
 const storeTabs = async (tabs, listIndex) => {
-  console.log('storeTabs', tabs, listIndex)
+  // console.log('storeTabs', tabs, listIndex)
   const appUrl = browser.runtime.getURL('')
   tabs = tabs.filter(i => !i.url.startsWith(appUrl))
   const opts = await storage.getOptions()

@@ -83,7 +83,7 @@ const createMenus = async (obj, parent, contexts, lists) => {
         parentId: 'STORE_TO_TITLED_LIST',
       }
       const id = await browser.contextMenus.create(prop)
-      console.log('context menu created: ' + id)
+      // console.log('context menu created: ' + id)
       for (const key in obj) {
         const prop = {
           id: 'STORE_TO_TITLED_LIST.' + key + '|' + listIndex,
@@ -92,7 +92,7 @@ const createMenus = async (obj, parent, contexts, lists) => {
           parentId: id,
         }
         const childId = await browser.contextMenus.create(prop)
-        console.log('context menu created: ' + childId)
+        // console.log('context menu created: ' + childId)
       }
     }
   } else {
@@ -107,7 +107,7 @@ const createMenus = async (obj, parent, contexts, lists) => {
         prop.parentId = parent
       }
       const id = await browser.contextMenus.create(prop)
-      console.log('context menu created: ' + id)
+      // console.log('context menu created: ' + id)
       if (_.isObject(obj[key])) await createMenus(obj[key], key, contexts, lists)
     }
   }
@@ -132,8 +132,8 @@ export const setupContextMenus = async ({pageContext, allContext}) => {
       if (PRODUCTION) ga('send', 'event', 'Menu clicked', info.menuItemId)
     }
   }
-  console.groupCollapsed('create context menu', contexts)
+  // console.groupCollapsed('create context menu', contexts)
   await createMenus(menus, null, contexts, lists)
-  console.groupEnd('create context menu')
+  // console.groupEnd('create context menu')
   dynamicDisableMenu(lists)
 }

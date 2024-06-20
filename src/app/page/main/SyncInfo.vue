@@ -42,12 +42,12 @@
 
 
         <v-snackbar
-            v-model="this.snackbar"
+            v-model="snackbar"
             :timeout="3000"
             top
             dark
         >
-          You have login to Better One Tab 2024 server successfully
+          {{ this.snackbarMessage}}
           <v-btn color="pink" flat @click="this.snackbar = false">Close</v-btn>
         </v-snackbar>
       </v-flex>
@@ -72,6 +72,7 @@ export default {
       syncServerUsername: 'admin123',
       syncServerPassword: 'password456',
       loading: false,
+      snackbarMessage: 'You have login to Better One Tab 2024 server successfully',
       snackbar: false,
     }
   },
@@ -99,7 +100,7 @@ export default {
       })
         .then(async response => response.json())
         .then(async data => {
-          console.log('data:', data)
+          // console.log('data:', data)
           if (data) {
             const token = data
             await boss.setSyncServerHost(this.syncServerHost)
@@ -109,6 +110,7 @@ export default {
             this.updateSyncServerHost(this.syncServerHost)
             this.updateUsername(this.syncServerUsername)
 
+            this.snackbarMessage = 'You have login to Better One Tab 2024 server successfully'
             this.snackbar = true
             // const loginNotificationId = 'login'
             // browser.notifications.create(loginNotificationId, {
@@ -121,11 +123,13 @@ export default {
             //   browser.notifications.clear(loginNotificationId)
             // }, 3000)
           } else {
-            window.alert('Login failed')
+            this.snackbarMessage = 'Login failed !'
+            this.snackbar = true
           }
         })
         .catch(error => {
-          console.error('Error:', error)
+          this.snackbarMessage = `Login failed error ${error}`
+          this.snackbar = true
         })
     },
   },

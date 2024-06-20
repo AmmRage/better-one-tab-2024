@@ -7,8 +7,8 @@ export const COLORS = [
 export const ILLEGAL_URLS = ['about:', 'chrome:', 'file:', 'wss:', 'ws:']
 
 export const PICKED_TAB_PROPS = ['url', 'title', 'favIconUrl', 'pinned']
-export const PICKED_LIST_RPOPS = ['_id', 'tabs', 'title', 'tags', 'time', 'pinned', 'expand', 'color', 'updatedAt']
-export const SYNCED_LIST_PROPS = ['_id', 'tabs', 'title', 'tags', 'time', 'pinned', 'color']
+export const PICKED_LIST_RPOPS = ['_id', 'uuid', 'tabs', 'title', 'tags', 'time', 'pinned', 'expand', 'color', 'updatedAt']
+export const SYNCED_LIST_PROPS = ['_id', 'uuid', 'tabs', 'title', 'tags', 'time', 'pinned', 'expand', 'color', 'updatedAt']
 
 export const TOKEN_KEY = 'token'
 export const AUTH_HEADER = 'auth'

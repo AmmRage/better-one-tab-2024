@@ -335,8 +335,8 @@ export default {
     },
     listsToDisplay() {
       return this.$route.name === 'pinnedList' ? this.pinnedList
-          : this.tagInView ? this.taggedList[this.tagInView] || []
-              : this.indexedLists
+        : this.tagInView ? this.taggedList[this.tagInView] || []
+        : this.indexedLists
     },
     listsInView() {
       return this.inPageLists(this.currentPage, this.listsToDisplay)
@@ -347,7 +347,7 @@ export default {
   },
   created() {
     this.init()
-    console.log('lists', this.lists)
+    // console.log('lists', this.lists)
   },
   activated() {
     if (this.$route.query.listIndex != null) this.jumpTo(this.$route.query)
@@ -470,6 +470,7 @@ export default {
 
       if (targetListIndex === -1) {
         const newList = createNewTabList({tabs})
+        console.debug('newList', newList)
         this.addList([newList])
         this.tabMoved(changedLists.map(i => i + 1)) // it will create a new list
       } else {
@@ -525,7 +526,7 @@ export default {
     },
     removeSelectedItems() {
       const items = this.getSelectedItems()
-      console.log('removeSelectedItems', items)
+      // console.log('removeSelectedItems', items)
       if (!(items && items.length)) return
       const changedLists = []
       items.sort((a, b) => b.tabIndex - a.tabIndex)
