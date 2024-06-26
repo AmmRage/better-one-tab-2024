@@ -1,9 +1,9 @@
 {
   "ext_name": {
-    "message": "better-onetab"
+    "message": "Better-One-Tab-2024"
   },
   "ext_desc": {
-    "message": "A better OneTab"
+    "message": "A better One Tab updated at 2024"
   },
   "menu_STORE_SELECTED_TABS": {
     "message": "Menu store selected tabs"
@@ -321,10 +321,10 @@
     "message": "Authorize with Github account"
   },
   "ui_boss": {
-    "message": "Better-Onetab Sync Server (unlimited storage)"
+    "message": "Better-One-Tab-2024 Sync Server (unlimited storage)"
   },
   "ui_use_boss": {
-    "message": "Use Better-Onetab Sync Service (unlimited storage)"
+    "message": "Use Better-One-Tab-2024 Sync Service (unlimited storage)"
   },
   "ui_logged_uid": {
     "message": "Has authorized with uid:"

@@ -98,7 +98,20 @@ export default {
           password: this.syncServerPassword,
         }),
       })
-        .then(async response => response.json())
+        .then(async response => {
+          if (response.status === 200) {
+            return response.json()
+          } else if (response.status === 403) {
+            chrome.storage.local.set({
+              snackbar_updated_at: Date.now(),
+              snackbarMessage: 'Access forbidden',
+            })
+            return null
+          } else {
+            console.log('Unknown error')
+            return null
+          }
+        })
         .then(async data => {
           // console.log('data:', data)
           if (data) {
@@ -111,19 +124,6 @@ export default {
             this.updateUsername(this.syncServerUsername)
 
             this.snackbarMessage = 'You have login to Better One Tab 2024 server successfully'
-            this.snackbar = true
-            // const loginNotificationId = 'login'
-            // browser.notifications.create(loginNotificationId, {
-            //   type: 'basic',
-            //   iconUrl: 'assets/icons/icon_128.png',
-            //   title: 'you have login to Better One Tab 2024 server successfully',
-            //   message: '',
-            // })
-            // setTimeout(() => {
-            //   browser.notifications.clear(loginNotificationId)
-            // }, 3000)
-          } else {
-            this.snackbarMessage = 'Login failed !'
             this.snackbar = true
           }
         })

@@ -15,7 +15,7 @@
             </v-list-tile-avatar>
 
             <v-list-tile-content>
-              <v-list-tile-title>Better-onetab</v-list-tile-title>
+              <v-list-tile-title>Better-One-Tab-2024</v-list-tile-title>
               <v-list-tile-sub-title>
                 <span>Version: {{ version }}</span>
                 <strong v-if="!!update" :style="{ color: 'green' }">v{{ update }} Has Available!</strong>

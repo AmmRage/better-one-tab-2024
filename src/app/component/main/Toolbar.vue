@@ -80,6 +80,7 @@ import 'material-icons/iconfont/material-icons.css'
 import {mapActions, mapMutations, mapState} from 'vuex'
 import {TOKEN_KEY} from '../../../common/constants'
 import {sendMessage} from '../../../common/utils'
+import boss from '../../../common/service/boss'
 
 export default {
   data() {
@@ -110,7 +111,7 @@ export default {
   created() {
     this.init()
     // 初始化时从存储中获取值
-    browser.storage.local.get(TOKEN_KEY).then((result) => {
+    browser.storage.local.get(TOKEN_KEY).then(result => {
       this.token = result[TOKEN_KEY]
       let hasToken = false
       // eslint-disable-next-line no-undefined
@@ -123,7 +124,7 @@ export default {
       this.setHasToken(hasToken)
       console.debug(`Toolbar init, hasToken: ${hasToken}, token: ${this.token}`)
     })
-    browser.storage.local.get('updated_at').then((result) => {
+    browser.storage.local.get('updated_at').then(result => {
       // eslint-disable-next-line no-undefined
       if (result['updated_at'] !== undefined && result['updated_at'] !== null && result['updated_at'] !== '') {
         this.lastUpdate = new Date(result['updated_at'] * 1000).toLocaleString()
@@ -149,10 +150,15 @@ export default {
       }
 
       if (area === 'local' && changes['updated_at']) {
-        console.debug('snackbar changes: ', changes)
+        // console.debug('snackbar changes: ', changes)
         this.lastUpdate = new Date(changes.updated_at.newValue * 1000).toLocaleString()
         this.snackbarMessage = `uploaded to server at ${this.lastUpdate}`
         this.snackbar = true
+      } else if (area === 'local' && changes['snackbar_updated_at']) {
+        browser.storage.local.get('snackbarMessage').then(result => {
+          this.snackbarMessage = result['snackbarMessage']
+          this.snackbar = true
+        })
       }
     })
   },
@@ -213,12 +219,43 @@ export default {
               },
               body: JSON.stringify({
                 tabs: this.lists,
-                token: token
+                token
               }),
             })
-              .then(async response => response.json())
+              .then(async response => {
+                if (response.status === 200) {
+                  console.log('save tabs response:', response)
+                  return response.json()
+                } else if (response.status === 401) {
+                  console.log('Invalid token')
+                  boss.removeToken().then(() => {})
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Invalid token, please login again'
+                  })
+                  return null
+                } else if (response.status === 403) {
+                  console.log('Access forbidden')
+                  boss.removeToken().then(() => {})
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Access forbidden'
+                  })
+                  return null
+                } else {
+                  console.log('Unknown error')
+                  return null
+                }
+              })
               .then(async data => {
-                // console.log('data:', data)
+                if (data){
+                  console.log('save tabs response data:', data)
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Tabs uploaded successfully',
+                    updated_at: data.updated_at
+                  })
+                }
               })
               .catch(error => {
                 console.error('Error:', error)
@@ -260,16 +297,14 @@ export default {
                 'Content-Type': 'application/json',
               },
             })
-              .then(async response => {
-                return response.json()
-              })
+              .then(async response => response.json())
               .then(async data => {
                 // console.log('Get tabs response:', data)
 
                 if (data && data.tabs) {
                   this.$store.commit('setLists', data.tabs)
 
-                  let storageNewValue = {
+                  const storageNewValue = {
                     ...items,
                     lists: data.tabs
                   }
@@ -279,7 +314,7 @@ export default {
                   })
                 }
               })
-              .catch((error) => {
+              .catch(error => {
                 console.error('Error:', error)
                 this.snackbarMessage = 'You got error when loading tabs from server' + error
                 this.snackbar = true
@@ -330,7 +365,7 @@ export default {
               },
               body: JSON.stringify({
                 tabs: this.lists,
-                token: token
+                token
               }),
             })
               .then(async response => response.json())

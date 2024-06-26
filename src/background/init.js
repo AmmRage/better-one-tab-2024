@@ -20,7 +20,7 @@ if (DEBUG && !MOZ) {
   import(
     /* webpackChunkName: "autoreload", webpackMode: "lazy" */
     '../common/autoreload'
-  ).then(({autoreload}) => autoreload())
+    ).then(({autoreload}) => autoreload())
 }
 
 /* eslint-disable-next-line */
@@ -28,7 +28,7 @@ if (PRODUCTION) {
   import(
     /* webpackChunkName: "tracker", webpackMode: "lazy" */
     '../common/tracker'
-  ).then(({tracker}) => tracker())
+    ).then(({tracker}) => tracker())
 }
 
 if (DEBUG) {
@@ -39,7 +39,7 @@ if (DEBUG) {
   import(
     /* webpackChunkName: "helper", webpackMode: "lazy" */
     '../common/helper'
-  ).then(helper => {
+    ).then(helper => {
     window.helper = helper
   })
 }
@@ -67,7 +67,7 @@ const storageChangedHandler = changes => {
   }
   if (changes.lists) {
     if (changes.lists.newValue && changes.lists.newValue.length) {
-      // console.log('tabs to upload:', changes.lists.newValue)
+      console.log('tabs to upload:', changes.lists.newValue)
       let syncServerHost = ''
       let token = ''
       let username = ''
@@ -95,25 +95,62 @@ const storageChangedHandler = changes => {
               },
               body: JSON.stringify({
                 tabs: changes.lists.newValue,
-                token: token
+                token: token,
               }),
             })
-              .then(async response => response.json())
+              .then(async response => {
+                if (response.status === 200) {
+                  console.log('save tabs response:', response)
+                  return response.json()
+                } else if (response.status === 401) {
+                  console.log('Invalid token')
+                  boss.removeToken().then(() => {
+                  })
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Invalid token, please login again',
+                  })
+                  return null
+                } else if (response.status === 403) {
+                  console.log('Access forbidden')
+                  boss.removeToken().then(() => {
+                  })
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Access forbidden',
+                  })
+                  return null
+                } else {
+                  console.log('Unknown error')
+                  return null
+                }
+              })
               .then(async data => {
-                // console.log('data:', data)
-
-                chrome.storage.local.set({
-                  snackbar: true,
-                  snackbarMessage: 'Tabs uploaded successfully',
-                  updated_at: data.updated_at
-                })
+                if (data) {
+                  console.log('save tabs response data:', data)
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Tabs uploaded successfully',
+                    updated_at: data.updated_at,
+                  })
+                }
               })
               .catch(error => {
                 console.error('Error:', error)
               })
+          } else {
+            console.log('Server host, token or username is not set')
+            chrome.storage.local.set({
+              snackbar_updated_at: Date.now(),
+              snackbarMessage: 'Server host, token or username is not set',
+            })
           }
         } else {
-          console.log('The key myKey does not exist in local storage.')
+          console.log('Fatal Error: fail to load local storage')
+          chrome.storage.local.set({
+            snackbar_updated_at: Date.now(),
+            snackbarMessage: 'Fatal Error: fail to load local storage',
+          })
         }
       })
     }

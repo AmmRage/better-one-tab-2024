@@ -18,7 +18,7 @@
      "message":"Ein besseres OneTab"
    },
    "ext_name": {
-     "message":"better-onetab"
+     "message":"better-one-tab-2024"
    },
    "menu_EXTRA": {
      "message":"Extra"
@@ -201,7 +201,7 @@
      "message":"Dieses Merkmal wird momentan getestet. Wenn Sie ein Problem finden, senden Sie mir bitte ein Feedback."
    },
    "ui_boss": {
-     "message":"Better-OneTab Sync-Server (unbegrenzter Speicherplatz)"
+     "message":"Better-One-Tab-2024 Sync-Server (unbegrenzter Speicherplatz)"
    },
    "ui_click_view_changelog": {
      "message":"Klicken Sie hier, um das Änderungsprotokoll anzuzeigen"
@@ -441,6 +441,6 @@
      "message":"Syncronisationsfehler"
    },
    "ui_use_boss": {
-     "message":"Benutze Better-OneTab Sync-Service (unbegrenzter Speicherplatz)"
+     "message":"Benutze Better-One-Tab-2024 Sync-Service (unbegrenzter Speicherplatz)"
    }
 }

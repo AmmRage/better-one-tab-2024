@@ -11,7 +11,7 @@ const config = {
   development: {
     __CLIENT_ID__: '530831729511-eq8apt6dhjimbmdli90jp2ple0lfmn3l.apps.googleusercontent.com',
     __DEV_CSP__: process.env.MOZ ? '' : ' http://localhost:8098 chrome-extension://nhdogjmejiglipccpnnnanhbledajbpd',
-    __EXT_NAME__: 'better-onetab (dev)',
+    __EXT_NAME__: 'Better-One-Tab-2024 (dev)',
     __CONTENT_SCRIPTS_MATCHES__: process.env.MOZ ? '*://*/*' : 'http://127.0.0.1:3000/*',
   },
   production: {

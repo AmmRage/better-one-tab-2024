@@ -1,10 +1,10 @@
 {
-  "name": "better-onetab",
+  "name": "better-onetab-2024",
   "version": "1.0.0",
-  "description": "a better OneTab for browsers",
+  "description": "added different server to store tabs, in order to use across different computer",
   "main": "index.js",
-  "repository": "https://github.com/cnwangjie/better-onetab",
-  "author": "cnwangjie",
+  "repository": "https://github.com/AmmRage/better-one-tab-2024",
+  "author": "https://github.com/AmmRage",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=development webpack --config webpack.dev.js --watch",
