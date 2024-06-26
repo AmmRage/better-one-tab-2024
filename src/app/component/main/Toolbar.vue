@@ -297,7 +297,32 @@ export default {
                 'Content-Type': 'application/json',
               },
             })
-              .then(async response => response.json())
+              .then(async response => {
+                if (response.status === 200) {
+                  return response.json()
+                } else if (response.status === 401) {
+                  console.log('Invalid token')
+                  boss.removeToken().then(() => {
+                  })
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Invalid token, please login again',
+                  })
+                  return null
+                } else if (response.status === 403) {
+                  console.log('Access forbidden')
+                  boss.removeToken().then(() => {
+                  })
+                  chrome.storage.local.set({
+                    snackbar_updated_at: Date.now(),
+                    snackbarMessage: 'Access forbidden',
+                  })
+                  return null
+                } else {
+                  console.log('Unknown error')
+                  return null
+                }
+              })
               .then(async data => {
                 // console.log('Get tabs response:', data)
 
@@ -309,7 +334,7 @@ export default {
                     lists: data.tabs
                   }
                   chrome.storage.local.set(storageNewValue, () => {
-                    this.snackbarMessage = `Load tabs from server successfully, ${data.tabs.length} tabs loaded`
+                    this.snackbarMessage = `Load tabs from server successfully, ${data.tabs.length} tabs list loaded`
                     this.snackbar = true
                   })
                 }
@@ -370,10 +395,10 @@ export default {
             })
               .then(async response => response.json())
               .then(async data => {
-                // console.log('data:', data)
-
-                this.snackbarMessage = 'Load tabs from server successfully'
-                this.snackbar = true
+                if (data) {
+                  this.snackbarMessage = 'Load tabs from server successfully'
+                  this.snackbar = true
+                }
               })
               .catch(error => {
                 console.error('Error:', error)
