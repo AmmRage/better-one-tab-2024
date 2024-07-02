@@ -9,16 +9,20 @@
   <v-toolbar-title v-if="lastUpdate!==''" class="white--text">Last sync: {{lastUpdate}}</v-toolbar-title>
   <v-spacer></v-spacer>
 
-  <v-tooltip left>
-    <v-btn slot="activator" icon dark :disabled="!online" @click="debugBtnClicked">
+  <!-- history -->
+  <v-tooltip bottom >
+    <v-btn slot="activator" icon dark :disabled="!online" @click="showHistoryBtnClicked">
       <transition name="fade" mode="out-in">
-        <span class="material-icons">bug_report</span>
+        <span class="material-icons">history</span>
       </transition>
     </v-btn>
     <span>for debug / test purpose<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
   </v-tooltip>
 
-  <v-tooltip v-if="hasToken" left>
+
+
+  <!-- download -->
+  <v-tooltip v-if="hasToken" bottom>
     <v-btn slot="activator" icon dark :disabled="!online" @click="loadBtnClicked">
       <transition name="fade" mode="out-in">
         <span class="material-icons">cloud_download</span>
@@ -27,18 +31,8 @@
     <span>download tabs immediately from server<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
   </v-tooltip>
 
-  <!-- logout -->
-  <v-tooltip v-if="this.hasToken" left>
-    <v-btn slot="activator" icon dark :disabled="!online" @click="logoutBtnClicked">
-      <transition name="fade" mode="out-in">
-        <span class="material-icons">logout</span>
-      </transition>
-    </v-btn>
-    <span>log out<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-  </v-tooltip>
-
   <!-- login / sync icon -->
-  <v-tooltip left>
+  <v-tooltip bottom>
     <v-btn slot="activator" icon dark :loading="syncing" :disabled="!online" @click="syncBtnClicked">
       <transition name="fade" mode="out-in">
         <span v-if="!online" class="material-icons">cloud_off</span>
@@ -52,23 +46,130 @@
   </v-tooltip>
 
   <!-- display mode -->
-  <v-tooltip left>
+  <v-tooltip bottom>
     <v-btn slot="activator" icon dark @click="switchNightMode">
       <v-icon>{{ nightmode ? 'brightness_5' : 'brightness_4' }}</v-icon>
     </v-btn>
     <span>{{ __('ui_nightmode') }}</span>
   </v-tooltip>
 
+  <!-- logout -->
+  <v-tooltip v-if="this.hasToken" bottom>
+    <v-btn slot="activator" icon dark :disabled="!online" @click="logoutBtnClicked">
+      <transition name="fade" mode="out-in">
+        <span class="material-icons">logout</span>
+      </transition>
+    </v-btn>
+    <span>log out<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
+  </v-tooltip>
 
   <v-snackbar
       v-model="snackbar"
-      :timeout="3000"
+      :timeout="30000"
       top
+      dark
   >
     {{this.snackbarMessage}}
     <v-btn color="pink" flat @click="this.snackbar = false">Close</v-btn>
   </v-snackbar>
+
+  <!-- modal -->
+  <v-dialog
+      v-model="showHistoryDialog"
+      scrollable
+      max-width="1500px"
+  >
+<!--    <template v-slot:activator="{ on, attrs }">-->
+<!--      <v-btn-->
+<!--          color="primary"-->
+<!--          dark-->
+<!--          v-bind="attrs"-->
+<!--          v-on="on"-->
+<!--      >-->
+<!--        Open Dialog-->
+<!--      </v-btn>-->
+<!--    </template>-->
+    <v-card>
+      <v-card-title>Historical tabs</v-card-title>
+      <v-divider></v-divider>
+      <v-progress-circular
+          :size="70"
+          :width="7"
+          color="green"
+          indeterminate
+      ></v-progress-circular>
+      <v-divider></v-divider>
+      <v-card-text style="height: 800px;">
+        <v-list two-line>
+          <v-list-item-group
+              v-model="selected"
+              active-class="pink--text"
+              multiple
+          >
+            <template v-for="(item, index) in items">
+              <v-list-item :key="item.title">
+                <template v-slot:default="{ active }">
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
+
+                    <v-list-item-subtitle
+                        class="text--primary"
+                        v-text="item.headline"
+                    ></v-list-item-subtitle>
+
+                    <v-list-item-subtitle v-text="item.subtitle"></v-list-item-subtitle>
+                  </v-list-item-content>
+
+                  <v-list-item-action>
+                    <v-list-item-action-text v-text="item.action"></v-list-item-action-text>
+
+                    <v-icon
+                        v-if="!active"
+                        color="grey lighten-1"
+                    >
+                      mdi-star-outline
+                    </v-icon>
+
+                    <v-icon
+                        v-else
+                        color="yellow darken-3"
+                    >
+                      mdi-star
+                    </v-icon>
+                  </v-list-item-action>
+                </template>
+              </v-list-item>
+
+              <v-divider
+                  v-if="index < items.length - 1"
+                  :key="index"
+              ></v-divider>
+            </template>
+          </v-list-item-group>
+        </v-list>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-btn
+            color="blue darken-1"
+            text
+            @click="showHistoryDialog = false"
+        >
+          Close
+        </v-btn>
+        <v-btn
+            color="blue darken-1"
+            text
+            @click="showHistoryDialog = false"
+        >
+          Save
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </v-toolbar>
+
+
 </template>
 <script>
 import __ from '@/common/i18n'
@@ -92,7 +193,9 @@ export default {
       token: '',
       snackbarMessage: '',
       snackbar: false,
-      lastUpdate: ''
+      lastUpdate: '',
+      showHistoryDialog: false,
+      dialogm1: '',
     }
   },
   components: {
@@ -187,7 +290,61 @@ export default {
       this.flat = this.scrollY === 0
     },
     logoutBtnClicked() {
-      return sendMessage({logout: true})
+      console.log('lists: ', this.lists)
+      if (this.lists === null || this.lists.length === 0) {
+        return
+      }
+
+      let syncServerHost = ''
+      let token = ''
+      let username = ''
+
+      chrome.storage.local.get(null, items => {
+        if (items) {
+          syncServerHost = items.syncServerHost
+          token = items.token
+          username = items.username
+          // console.debug('syncServerHost:', syncServerHost)
+          // console.debug('token:', token)
+          // console.debug('username:', username)
+
+          if (syncServerHost !== '' && token !== '' && username !== '' &&
+              syncServerHost !== null && token !== null && username !== null
+          ) {
+            fetch(syncServerHost + `/api/user/${username}/logout`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Token: token,
+              },
+              body: JSON.stringify(token),
+            })
+              .then(async response => {
+                if (response.status === 200) {
+                  this.snackbarMessage = `user logout successfully`
+                  this.snackbar = true
+                  console.log('save tabs response:', response)
+                  return response.json()
+                } else {
+                  this.snackbarMessage = `user logout fail with status: ${response.status}`
+                  this.snackbar = true
+                  return null
+                }
+              })
+              .then(async data => {
+                if (data){
+                  console.log('response data:', data)
+                  return sendMessage({logout: true})
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error)
+              })
+          }
+        } else {
+          console.log('The key myKey does not exist in local storage.')
+        }
+      })
     },
     pushBtnClicked(){
       console.log('lists: ', this.lists)
@@ -265,6 +422,10 @@ export default {
           console.log('The key myKey does not exist in local storage.')
         }
       })
+    },
+    showHistoryBtnClicked(){
+      console.debug('showHistoryBtnClicked: hasToken:', this.hasToken)
+      this.showHistoryDialog = true
     },
     debugBtnClicked(){
       console.debug('debugBtnClicked: hasToken:', this.hasToken)
