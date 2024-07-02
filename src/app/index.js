@@ -6,20 +6,34 @@ import logger from '../common/logger'
 import Vuetify from 'vuetify/lib'
 import VueClipboard from 'vue-clipboard2'
 import colors from 'vuetify/es5/util/colors'
-import 'vuetify/src/stylus/app.styl'
+import 'vuetify/dist/vuetify.min.css'
+// import 'vuetify/src/stylus/app.styl'
+
 
 logger.init({Vue})
 
+
+Vue.use(VueClipboard)
+// Vue.use(Vuetify, {
+//   theme: {
+//     primary: colors.lightGreen,
+//   },
+// })
+
+Vue.use(Vuetify)
+
+
+
 Vue.config.productionTip = false
 Vue.config.devtools = true
-Vue.use(VueClipboard)
-Vue.use(Vuetify, {
-  theme: {
-    primary: colors.lightGreen,
-  },
-})
 
 const app = new Vue({
+  vuetify: new Vuetify({
+    theme: {
+      dark: true,
+      primary: colors.lightGreen,
+    },
+  }),
   el: '#app',
   router,
   store,

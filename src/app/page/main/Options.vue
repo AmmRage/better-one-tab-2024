@@ -9,14 +9,14 @@
           <v-subheader>{{ __('ui_options_' + cate) }}</v-subheader>
           <v-list>
             <template v-for="(option, optionIndex) in optionsList">
-              <v-list-tile>
-                <v-list-tile-content>
+              <v-list-item>
+                <v-list-item-content>
                   <v-layout wrap row align-center style="width:100%">
                     <v-flex xs8>
                       <v-subheader>
                         <div>{{ __('opt_name_' + option.name) }}</div>
                         <v-tooltip top v-if="isNew(option)">
-                          <v-chip slot="activator" outline color="red" small>NEW</v-chip>
+                          <v-chip v-slot="activator" outline color="red" small>NEW</v-chip>
                           <span>{{ __('ui_new_warn') }}</span>
                         </v-tooltip>
 
@@ -50,8 +50,8 @@
                       ></v-switch>
                     </v-flex>
                   </v-layout>
-                </v-list-tile-content>
-              </v-list-tile>
+                </v-list-item-content>
+              </v-list-item>
               <v-divider v-if="optionIndex !== optionsList.length - 1"></v-divider>
             </template>
           </v-list>
@@ -60,19 +60,19 @@
         <v-subheader>{{ __('ui_options_sync') }}</v-subheader>
 
         <v-list>
-          <v-list-tile>
-            <v-list-tile-content>
+          <v-list-item>
+            <v-list-item-content>
 
               <v-subheader>
                 Sync
               </v-subheader>
-            </v-list-tile-content>
-            <v-list-tile-action>
+            </v-list-item-content>
+            <v-list-item-action>
               <v-btn icon ripple :to="'/app/options/sync'">
                 <v-icon color="grey lighten-1">arrow_forward</v-icon>
               </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
+            </v-list-item-action>
+          </v-list-item>
         </v-list>
       </v-card-text>
     </v-card>

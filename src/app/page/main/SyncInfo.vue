@@ -4,7 +4,7 @@
       <v-flex xs12 sm6 offset-sm3>
         <v-card>
           <v-card-title>
-            <v-btn flat icon @click="$router.go(-1)">
+            <v-btn text icon @click="$router.go(-1)">
               <v-icon>arrow_back</v-icon>
             </v-btn>
             <h2>{{ __('ui_sync_setting') }}</h2>
@@ -48,7 +48,7 @@
             dark
         >
           {{ this.snackbarMessage}}
-          <v-btn color="pink" flat @click="this.snackbar = false">Close</v-btn>
+          <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>
         </v-snackbar>
       </v-flex>
     </v-layout>

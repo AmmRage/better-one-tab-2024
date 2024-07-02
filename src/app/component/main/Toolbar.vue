@@ -1,6 +1,6 @@
 <template>
 <v-toolbar app clipped-left :color="nightmode ? null : 'primary'" :flat="flat" v-scroll="onScroll">
-  <v-toolbar-side-icon dark @click="switchDrawer"></v-toolbar-side-icon>
+  <v-app-bar-nav-icon dark @click="switchDrawer"></v-app-bar-nav-icon>
   <v-toolbar-title class="white--text">Better OneTab 2024</v-toolbar-title>
   <v-spacer></v-spacer>
   <search-form v-if="!opts.disableSearch"></search-form>
@@ -70,7 +70,7 @@
       dark
   >
     {{this.snackbarMessage}}
-    <v-btn color="pink" flat @click="this.snackbar = false">Close</v-btn>
+    <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>
   </v-snackbar>
 
   <!-- modal -->
@@ -102,20 +102,20 @@
         ></v-progress-circular>
         <v-list  v-if="!historyLoading" two-line>
           <template v-for="(item, index) in items">
-            <v-list-tile
+            <v-list-item
                 :key="item.title"
-                avatar
+
                 ripple
                 @click="toggle(index)"
             >
-              <v-list-tile-content>
-                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                <v-list-tile-sub-title class="text--primary">{{ item.headline }}</v-list-tile-sub-title>
-                <v-list-tile-sub-title>{{ item.subtitle }}</v-list-tile-sub-title>
-              </v-list-tile-content>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+                <v-list-item-subtitle class="text--primary">{{ item.headline }}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{ item.subtitle }}</v-list-item-subtitle>
+              </v-list-item-content>
 
-              <v-list-tile-action>
-                <v-list-tile-action-text>{{ item.action }}</v-list-tile-action-text>
+              <v-list-item-action>
+                <v-list-item-action-text>{{ item.action }}</v-list-item-action-text>
                 <v-icon
                     v-if="selected.indexOf(index) < 0"
                     color="grey lighten-1"
@@ -129,9 +129,9 @@
                 >
                   star
                 </v-icon>
-              </v-list-tile-action>
+              </v-list-item-action>
 
-            </v-list-tile>
+            </v-list-item>
             <v-divider
                 v-if="index + 1 < items.length"
                 :key="index"

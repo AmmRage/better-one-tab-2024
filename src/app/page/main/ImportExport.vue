@@ -1,7 +1,7 @@
 <template>
 <v-card>
   <v-tabs
-    color="cyan"
+      background-color="cyan"
     dark
     grow
     slider-color="yellow"

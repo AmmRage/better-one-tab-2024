@@ -2,26 +2,26 @@
 <v-app :style="{width: '360px'}" :dark="nightmode">
   <v-list dense v-if="lists.length > 0">
     <template v-for="(list, index) in lists">
-      <v-list-tile
+      <v-list-item
         ripple
         @click="clicked(index)"
         :key="index"
         :color="list.color"
         class="list-item"
       >
-        <v-list-tile-content>
-          <v-list-tile-title><strong>[{{ list.tabs.length }}]</strong> {{ friendlyTitle(list) }}</v-list-tile-title>
-          <v-list-tile-sub-title>{{ formatTime(list.time) }}</v-list-tile-sub-title>
-        </v-list-tile-content>
-        <v-list-tile-action>
+        <v-list-item-content>
+          <v-list-item-title><strong>[{{ list.tabs.length }}]</strong> {{ friendlyTitle(list) }}</v-list-item-title>
+          <v-list-item-subtitle>{{ formatTime(list.time) }}</v-list-item-subtitle>
+        </v-list-item-content>
+        <v-list-item-action>
           <div class="text-xs-right">
-            <v-btn small class="list-item-btn-hover" flat icon title="store select tab into this list" @click.stop="storeInto(index)">
+            <v-btn small class="list-item-btn-hover" text icon title="store select tab into this list" @click.stop="storeInto(index)">
               <v-icon :style="{fontSize: '14px'}">add</v-icon>
             </v-btn>
             <v-icon v-show="list.pinned" class="list-item-icon" color="blue" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
           </div>
-        </v-list-tile-action>
-      </v-list-tile>
+        </v-list-item-action>
+      </v-list-item>
       <v-divider v-if="index + 1 < lists.length"></v-divider>
     </template>
   </v-list>

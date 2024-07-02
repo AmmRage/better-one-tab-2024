@@ -106,20 +106,12 @@ module.exports = {
         ]
       },
       {
-        test: /\.scss$/,
+        test: /\.s[ac]ss$/i,
         use: [
-          'vue-style-loader',
+          'style-loader',
           'css-loader',
-          'sass-loader'
-        ]
-      },
-      {
-        test: /\.styl/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          'stylus-loader'
-        ]
+          'sass-loader',
+        ],
       },
       {
         test: /\.(woff2?|eot|ttf|otf|svg)(\?.*)?$/,

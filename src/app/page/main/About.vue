@@ -9,33 +9,33 @@
       </h2>
       <v-card>
         <v-list>
-          <v-list-tile avatar>
-            <v-list-tile-avatar tile>
+          <v-list-item >
+            <v-list-item-avatar tile>
               <img src="~@/assets/icons/icon_128.png">
-            </v-list-tile-avatar>
+            </v-list-item-avatar>
 
-            <v-list-tile-content>
-              <v-list-tile-title>Better-One-Tab-2024</v-list-tile-title>
-              <v-list-tile-sub-title>
+            <v-list-item-content>
+              <v-list-item-title>Better-One-Tab-2024</v-list-item-title>
+              <v-list-item-subtitle>
                 <span>Version: {{ version }}</span>
                 <strong v-if="!!update" :style="{ color: 'green' }">v{{ update }} Has Available!</strong>
                 <span v-else>(Already the latest version)</span>
-              </v-list-tile-sub-title>
+              </v-list-item-subtitle>
 
-            </v-list-tile-content>
+            </v-list-item-content>
 
 
-            <v-list-tile-action>
+            <v-list-item-action>
               <v-btn v-if="!!update" color="success" v-on:click="reload">Update</v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
+            </v-list-item-action>
+          </v-list-item>
 
         </v-list>
       </v-card>
 
 
       <v-subheader class="mt-4">Change Logs</v-subheader>
-      <v-btn flat block href="https://github.com/cnwangjie/better-onetab/blob/master/CHANGELOG.md">Click to view the whole change logs</v-btn>
+      <v-btn text block href="https://github.com/cnwangjie/better-onetab/blob/master/CHANGELOG.md">Click to view the whole change logs</v-btn>
     </v-flex>
   </v-layout>
 </div>

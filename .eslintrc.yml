@@ -4,7 +4,6 @@ env:
   webextensions: true
 extends:
   - plugin:vue/base
-  - '@cnwangjie/eslint-config'
 parserOptions:
   parser: babel-eslint
   ecmaVersion: 8
