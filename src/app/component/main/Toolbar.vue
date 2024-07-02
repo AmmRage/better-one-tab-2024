@@ -92,60 +92,51 @@
     <v-card>
       <v-card-title>Historical tabs</v-card-title>
       <v-divider></v-divider>
-      <v-progress-circular
-          :size="70"
-          :width="7"
-          color="green"
-          indeterminate
-      ></v-progress-circular>
-      <v-divider></v-divider>
-      <v-card-text style="height: 800px;">
-        <v-list two-line>
-          <v-list-item-group
-              v-model="selected"
-              active-class="pink--text"
-              multiple
-          >
-            <template v-for="(item, index) in items">
-              <v-list-item :key="item.title">
-                <template v-slot:default="{ active }">
-                  <v-list-item-content>
-                    <v-list-item-title v-text="item.title"></v-list-item-title>
 
-                    <v-list-item-subtitle
-                        class="text--primary"
-                        v-text="item.headline"
-                    ></v-list-item-subtitle>
+      <v-card-text  style="height: 800px;">
+        <v-progress-circular  v-if="historyLoading"
+            :size="70"
+            :width="7"
+            color="green"
+            indeterminate
+        ></v-progress-circular>
+        <v-list  v-if="!historyLoading" two-line>
+          <template v-for="(item, index) in items">
+            <v-list-tile
+                :key="item.title"
+                avatar
+                ripple
+                @click="toggle(index)"
+            >
+              <v-list-tile-content>
+                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                <v-list-tile-sub-title class="text--primary">{{ item.headline }}</v-list-tile-sub-title>
+                <v-list-tile-sub-title>{{ item.subtitle }}</v-list-tile-sub-title>
+              </v-list-tile-content>
 
-                    <v-list-item-subtitle v-text="item.subtitle"></v-list-item-subtitle>
-                  </v-list-item-content>
+              <v-list-tile-action>
+                <v-list-tile-action-text>{{ item.action }}</v-list-tile-action-text>
+                <v-icon
+                    v-if="selected.indexOf(index) < 0"
+                    color="grey lighten-1"
+                >
+                  star_border
+                </v-icon>
 
-                  <v-list-item-action>
-                    <v-list-item-action-text v-text="item.action"></v-list-item-action-text>
+                <v-icon
+                    v-else
+                    color="yellow darken-2"
+                >
+                  star
+                </v-icon>
+              </v-list-tile-action>
 
-                    <v-icon
-                        v-if="!active"
-                        color="grey lighten-1"
-                    >
-                      mdi-star-outline
-                    </v-icon>
-
-                    <v-icon
-                        v-else
-                        color="yellow darken-3"
-                    >
-                      mdi-star
-                    </v-icon>
-                  </v-list-item-action>
-                </template>
-              </v-list-item>
-
-              <v-divider
-                  v-if="index < items.length - 1"
-                  :key="index"
-              ></v-divider>
-            </template>
-          </v-list-item-group>
+            </v-list-tile>
+            <v-divider
+                v-if="index + 1 < items.length"
+                :key="index"
+            ></v-divider>
+          </template>
         </v-list>
       </v-card-text>
       <v-divider></v-divider>
@@ -196,6 +187,16 @@ export default {
       lastUpdate: '',
       showHistoryDialog: false,
       dialogm1: '',
+      selected: [2],
+      historyLoading: true,
+      items: [
+        {
+          action: '15 min',
+          headline: 'Brunch this weekend?',
+          title: 'Ali Connors',
+          subtitle: "I'll be in your neighborhood doing errands this weekend. Do you want to hang out?"
+        }
+      ]
     }
   },
   components: {
