@@ -1,173 +1,160 @@
 <template>
-<v-toolbar app clipped-left :color="nightmode ? null : 'primary'" :flat="flat" v-scroll="onScroll">
-  <v-app-bar-nav-icon dark @click="switchDrawer"></v-app-bar-nav-icon>
-  <v-toolbar-title class="white--text">Better OneTab 2024</v-toolbar-title>
-  <v-spacer></v-spacer>
-  <search-form v-if="!opts.disableSearch"></search-form>
-  <v-spacer></v-spacer>
+  <v-app-bar app clipped-left  :flat="flat" v-scroll="onScroll">
+    <v-app-bar-nav-icon dark @click="switchDrawer"></v-app-bar-nav-icon>
+    <v-toolbar-title class="white--text">Better OneTab 2024</v-toolbar-title>
+    <v-spacer></v-spacer>
+    <search-form v-if="!opts.disableSearch"></search-form>
+    <v-spacer></v-spacer>
 
-  <v-toolbar-title v-if="lastUpdate!==''" class="white--text">Last sync: {{lastUpdate}}</v-toolbar-title>
-  <v-spacer></v-spacer>
+    <v-toolbar-title v-if="lastUpdate!==''" class="white--text">Last sync: {{ lastUpdate }}</v-toolbar-title>
+    <v-spacer></v-spacer>
 
-  <!-- history -->
-  <v-tooltip bottom >
-    <v-btn slot="activator" icon dark :disabled="!online" @click="showHistoryBtnClicked">
-      <transition name="fade" mode="out-in">
-        <span class="material-icons">history</span>
-      </transition>
-    </v-btn>
-    <span>for debug / test purpose<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-  </v-tooltip>
+    <!-- history -->
+    <v-tooltip bottom>
+      <v-btn slot="activator" icon dark :disabled="!online" @click="showHistoryBtnClicked">
+        <transition name="fade" mode="out-in">
+          <span class="material-icons">history</span>
+        </transition>
+      </v-btn>
+      <span>for debug / test purpose<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
+    </v-tooltip>
 
+    <!-- download -->
+    <v-tooltip v-if="hasToken" bottom>
+      <v-btn slot="activator" icon dark :disabled="!online" @click="loadBtnClicked">
+        <transition name="fade" mode="out-in">
+          <span class="material-icons">cloud_download</span>
+        </transition>
+      </v-btn>
+      <span>download tabs immediately from server<dynamic-time v-if="!tooltip"
+                                                               v-model="lastUpdated"></dynamic-time></span>
+    </v-tooltip>
 
+    <!-- login / sync icon -->
+    <v-tooltip bottom>
+      <v-btn slot="activator" icon dark :loading="syncing" :disabled="!online" @click="syncBtnClicked">
+        <transition name="fade" mode="out-in">
+          <span v-if="!online" class="material-icons">cloud_off</span>
+          <span v-else-if="!hasToken" class="material-icons">login</span>
+          <span v-else class="material-icons">cloud_sync</span>
+        </transition>
+      </v-btn>
+      <span v-if="!online">You are offline now!<dynamic-time v-if="!tooltip"
+                                                             v-model="lastUpdated"></dynamic-time></span>
+      <span v-else-if="!hasToken">Login here<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
+      <span v-else>click to sync tabs to server<dynamic-time v-if="!tooltip"
+                                                             v-model="lastUpdated"></dynamic-time></span>
+    </v-tooltip>
 
-  <!-- download -->
-  <v-tooltip v-if="hasToken" bottom>
-    <v-btn slot="activator" icon dark :disabled="!online" @click="loadBtnClicked">
-      <transition name="fade" mode="out-in">
-        <span class="material-icons">cloud_download</span>
-      </transition>
-    </v-btn>
-    <span>download tabs immediately from server<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-  </v-tooltip>
+    <!-- display mode -->
+    <v-tooltip bottom>
+      <v-btn slot="activator" icon dark @click="switchNightMode">
+        <v-icon>{{ nightmode ? 'brightness_5' : 'brightness_4' }}</v-icon>
+      </v-btn>
+      <span>{{ __('ui_nightmode') }}</span>
+    </v-tooltip>
 
-  <!-- login / sync icon -->
-  <v-tooltip bottom>
-    <v-btn slot="activator" icon dark :loading="syncing" :disabled="!online" @click="syncBtnClicked">
-      <transition name="fade" mode="out-in">
-        <span v-if="!online" class="material-icons">cloud_off</span>
-        <span v-else-if="!hasToken" class="material-icons">login</span>
-        <span v-else class="material-icons">cloud_sync</span>
-      </transition>
-    </v-btn>
-    <span v-if="!online" >You are offline now!<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-    <span v-else-if="!hasToken" >Login here<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-    <span v-else>click to sync tabs to server<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-  </v-tooltip>
+    <!-- logout -->
+    <v-tooltip v-if="this.hasToken" bottom>
+      <v-btn slot="activator" icon dark :disabled="!online" @click="logoutBtnClicked">
+        <transition name="fade" mode="out-in">
+          <span class="material-icons">logout</span>
+        </transition>
+      </v-btn>
+      <span>log out<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
+    </v-tooltip>
 
-  <!-- display mode -->
-  <v-tooltip bottom>
-    <v-btn slot="activator" icon dark @click="switchNightMode">
-      <v-icon>{{ nightmode ? 'brightness_5' : 'brightness_4' }}</v-icon>
-    </v-btn>
-    <span>{{ __('ui_nightmode') }}</span>
-  </v-tooltip>
+    <v-snackbar
+        v-model="snackbar"
+        :timeout="30000"
+        top
+        dark
+    >
+      {{ this.snackbarMessage }}
+      <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>
+    </v-snackbar>
 
-  <!-- logout -->
-  <v-tooltip v-if="this.hasToken" bottom>
-    <v-btn slot="activator" icon dark :disabled="!online" @click="logoutBtnClicked">
-      <transition name="fade" mode="out-in">
-        <span class="material-icons">logout</span>
-      </transition>
-    </v-btn>
-    <span>log out<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-  </v-tooltip>
+    <!-- modal -->
+    <v-dialog
+        v-model="showHistoryDialog"
+        scrollable
+        max-width="1500px"
+    >
+      <v-card>
+        <v-card-title>Historical tabs</v-card-title>
+        <v-divider></v-divider>
 
-  <v-snackbar
-      v-model="snackbar"
-      :timeout="30000"
-      top
-      dark
-  >
-    {{this.snackbarMessage}}
-    <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>
-  </v-snackbar>
+        <v-card-text style="height: 800px;">
+          <v-progress-circular v-if="historyLoading"
+                               :size="70"
+                               :width="7"
+                               color="green"
+                               indeterminate
+          ></v-progress-circular>
+          <v-list v-if="!historyLoading" two-line>
+            <template v-for="(item, index) in items" >
+              <v-list-item
+                  :key="item.title"
+                  ripple
+                  @click="toggle(index)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                  <v-list-item-subtitle class="text--primary">{{ item.headline }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>{{ item.subtitle }}</v-list-item-subtitle>
+                </v-list-item-content>
 
-  <!-- modal -->
-  <v-dialog
-      v-model="showHistoryDialog"
-      scrollable
-      max-width="1500px"
-  >
-<!--    <template v-slot:activator="{ on, attrs }">-->
-<!--      <v-btn-->
-<!--          color="primary"-->
-<!--          dark-->
-<!--          v-bind="attrs"-->
-<!--          v-on="on"-->
-<!--      >-->
-<!--        Open Dialog-->
-<!--      </v-btn>-->
-<!--    </template>-->
-    <v-card>
-      <v-card-title>Historical tabs</v-card-title>
-      <v-divider></v-divider>
+                <v-list-item-action>
+                  <v-list-item-action-text>{{ item.action }}</v-list-item-action-text>
+                  <v-icon
+                      v-if="selected.indexOf(index) < 0"
+                      color="grey lighten-1"
+                  >
+                    star_border
+                  </v-icon>
 
-      <v-card-text  style="height: 800px;">
-        <v-progress-circular  v-if="historyLoading"
-            :size="70"
-            :width="7"
-            color="green"
-            indeterminate
-        ></v-progress-circular>
-        <v-list  v-if="!historyLoading" two-line>
-          <template v-for="(item, index) in items">
-            <v-list-item
-                :key="item.title"
+                  <v-icon
+                      v-else
+                      color="yellow darken-2"
+                  >
+                    star
+                  </v-icon>
+                </v-list-item-action>
 
-                ripple
-                @click="toggle(index)"
-            >
-              <v-list-item-content>
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
-                <v-list-item-subtitle class="text--primary">{{ item.headline }}</v-list-item-subtitle>
-                <v-list-item-subtitle>{{ item.subtitle }}</v-list-item-subtitle>
-              </v-list-item-content>
-
-              <v-list-item-action>
-                <v-list-item-action-text>{{ item.action }}</v-list-item-action-text>
-                <v-icon
-                    v-if="selected.indexOf(index) < 0"
-                    color="grey lighten-1"
-                >
-                  star_border
-                </v-icon>
-
-                <v-icon
-                    v-else
-                    color="yellow darken-2"
-                >
-                  star
-                </v-icon>
-              </v-list-item-action>
-
-            </v-list-item>
-            <v-divider
-                v-if="index + 1 < items.length"
-                :key="index"
-            ></v-divider>
-          </template>
-        </v-list>
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-btn
-            color="blue darken-1"
-            text
-            @click="showHistoryDialog = false"
-        >
-          Close
-        </v-btn>
-        <v-btn
-            color="blue darken-1"
-            text
-            @click="showHistoryDialog = false"
-        >
-          Save
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</v-toolbar>
-
-
+              </v-list-item>
+              <v-divider
+                  v-if="index + 1 < items.length"
+                  :key="index"
+              ></v-divider>
+            </template>
+          </v-list>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="showHistoryDialog = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="showHistoryDialog = false"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-app-bar>
 </template>
+
 <script>
 import __ from '@/common/i18n'
 import searchForm from './SearchForm'
 import dynamicTime from '@/app/component/DynamicTime'
-import {SYNC_SERVICE_URL} from '@/common/constants'
-import {setToken, removeToken, getToken } from '@/common/service/boss'
 import 'material-icons/iconfont/material-icons.css'
 import {mapActions, mapMutations, mapState} from 'vuex'
 import {TOKEN_KEY} from '../../../common/constants'
@@ -194,9 +181,9 @@ export default {
           action: '15 min',
           headline: 'Brunch this weekend?',
           title: 'Ali Connors',
-          subtitle: "I'll be in your neighborhood doing errands this weekend. Do you want to hang out?"
-        }
-      ]
+          subtitle: 'I\'ll be in your neighborhood doing errands this weekend. Do you want to hang out?',
+        },
+      ],
     }
   },
   components: {
@@ -207,10 +194,10 @@ export default {
     ...mapState(['opts', 'hasToken', 'nightmode', 'scrollY', 'syncServerHost', 'username', 'lists']),
     tooltip() {
       return !this.online ? __('ui_offline') // eslint-disable-line
-        : !this.hasToken ? __('ui_not_login') // eslint-disable-line
-        : this.syncing ? __('ui_syncing')
-        : __('ui_refresh')
-    }
+          : !this.hasToken ? __('ui_not_login') // eslint-disable-line
+              : this.syncing ? __('ui_syncing')
+                  : __('ui_refresh')
+    },
   },
   created() {
     this.init()
@@ -272,8 +259,12 @@ export default {
     ...mapActions(['switchNightMode', 'switchDrawer']),
     init() {
       this.onScroll()
-      window.addEventListener('online', () => { this.online = true })
-      window.addEventListener('offline', () => { this.online = false })
+      window.addEventListener('online', () => {
+        this.online = true
+      })
+      window.addEventListener('offline', () => {
+        this.online = false
+      })
       chrome.runtime.onMessage.addListener(msg => {
         if (msg.refreshing) {
           this.syncing = true
@@ -281,7 +272,9 @@ export default {
           this.syncing = false
           this.uploadSuccess = msg.refreshed.success
           if (this.uploadSuccess) {
-            setTimeout(() => { this.uploadSuccess = false }, 3000)
+            setTimeout(() => {
+              this.uploadSuccess = false
+            }, 3000)
           }
         }
       })
@@ -320,34 +313,34 @@ export default {
               },
               body: JSON.stringify(token),
             })
-              .then(async response => {
-                if (response.status === 200) {
-                  this.snackbarMessage = `user logout successfully`
-                  this.snackbar = true
-                  console.log('save tabs response:', response)
-                  return response.json()
-                } else {
-                  this.snackbarMessage = `user logout fail with status: ${response.status}`
-                  this.snackbar = true
-                  return null
-                }
-              })
-              .then(async data => {
-                if (data){
-                  console.log('response data:', data)
-                  return sendMessage({logout: true})
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error)
-              })
+                .then(async response => {
+                  if (response.status === 200) {
+                    this.snackbarMessage = `user logout successfully`
+                    this.snackbar = true
+                    console.log('save tabs response:', response)
+                    return response.json()
+                  } else {
+                    this.snackbarMessage = `user logout fail with status: ${response.status}`
+                    this.snackbar = true
+                    return null
+                  }
+                })
+                .then(async data => {
+                  if (data) {
+                    console.log('response data:', data)
+                    return sendMessage({logout: true})
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                })
           }
         } else {
           console.log('The key myKey does not exist in local storage.')
         }
       })
     },
-    pushBtnClicked(){
+    pushBtnClicked() {
       console.log('lists: ', this.lists)
       if (this.lists === null || this.lists.length === 0) {
         return
@@ -377,58 +370,60 @@ export default {
               },
               body: JSON.stringify({
                 tabs: this.lists,
-                token
+                token,
               }),
             })
-              .then(async response => {
-                if (response.status === 200) {
-                  console.log('save tabs response:', response)
-                  return response.json()
-                } else if (response.status === 401) {
-                  console.log('Invalid token')
-                  boss.removeToken().then(() => {})
-                  chrome.storage.local.set({
-                    snackbar_updated_at: Date.now(),
-                    snackbarMessage: 'Invalid token, please login again'
-                  })
-                  return null
-                } else if (response.status === 403) {
-                  console.log('Access forbidden')
-                  boss.removeToken().then(() => {})
-                  chrome.storage.local.set({
-                    snackbar_updated_at: Date.now(),
-                    snackbarMessage: 'Access forbidden'
-                  })
-                  return null
-                } else {
-                  console.log('Unknown error')
-                  return null
-                }
-              })
-              .then(async data => {
-                if (data){
-                  console.log('save tabs response data:', data)
-                  chrome.storage.local.set({
-                    snackbar_updated_at: Date.now(),
-                    snackbarMessage: 'Tabs uploaded successfully',
-                    updated_at: data.updated_at
-                  })
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error)
-              })
+                .then(async response => {
+                  if (response.status === 200) {
+                    console.log('save tabs response:', response)
+                    return response.json()
+                  } else if (response.status === 401) {
+                    console.log('Invalid token')
+                    boss.removeToken().then(() => {
+                    })
+                    chrome.storage.local.set({
+                      snackbar_updated_at: Date.now(),
+                      snackbarMessage: 'Invalid token, please login again',
+                    })
+                    return null
+                  } else if (response.status === 403) {
+                    console.log('Access forbidden')
+                    boss.removeToken().then(() => {
+                    })
+                    chrome.storage.local.set({
+                      snackbar_updated_at: Date.now(),
+                      snackbarMessage: 'Access forbidden',
+                    })
+                    return null
+                  } else {
+                    console.log('Unknown error')
+                    return null
+                  }
+                })
+                .then(async data => {
+                  if (data) {
+                    console.log('save tabs response data:', data)
+                    chrome.storage.local.set({
+                      snackbar_updated_at: Date.now(),
+                      snackbarMessage: 'Tabs uploaded successfully',
+                      updated_at: data.updated_at,
+                    })
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                })
           }
         } else {
           console.log('The key myKey does not exist in local storage.')
         }
       })
     },
-    showHistoryBtnClicked(){
+    showHistoryBtnClicked() {
       console.debug('showHistoryBtnClicked: hasToken:', this.hasToken)
       this.showHistoryDialog = true
     },
-    debugBtnClicked(){
+    debugBtnClicked() {
       console.debug('debugBtnClicked: hasToken:', this.hasToken)
     },
     loadBtnClicked() {
@@ -459,53 +454,53 @@ export default {
                 'Content-Type': 'application/json',
               },
             })
-              .then(async response => {
-                if (response.status === 200) {
-                  return response.json()
-                } else if (response.status === 401) {
-                  console.log('Invalid token')
-                  boss.removeToken().then(() => {
-                  })
-                  chrome.storage.local.set({
-                    snackbar_updated_at: Date.now(),
-                    snackbarMessage: 'Invalid token, please login again',
-                  })
-                  return null
-                } else if (response.status === 403) {
-                  console.log('Access forbidden')
-                  boss.removeToken().then(() => {
-                  })
-                  chrome.storage.local.set({
-                    snackbar_updated_at: Date.now(),
-                    snackbarMessage: 'Access forbidden',
-                  })
-                  return null
-                } else {
-                  console.log('Unknown error')
-                  return null
-                }
-              })
-              .then(async data => {
-                // console.log('Get tabs response:', data)
-
-                if (data && data.tabs) {
-                  this.$store.commit('setLists', data.tabs)
-
-                  const storageNewValue = {
-                    ...items,
-                    lists: data.tabs
+                .then(async response => {
+                  if (response.status === 200) {
+                    return response.json()
+                  } else if (response.status === 401) {
+                    console.log('Invalid token')
+                    boss.removeToken().then(() => {
+                    })
+                    chrome.storage.local.set({
+                      snackbar_updated_at: Date.now(),
+                      snackbarMessage: 'Invalid token, please login again',
+                    })
+                    return null
+                  } else if (response.status === 403) {
+                    console.log('Access forbidden')
+                    boss.removeToken().then(() => {
+                    })
+                    chrome.storage.local.set({
+                      snackbar_updated_at: Date.now(),
+                      snackbarMessage: 'Access forbidden',
+                    })
+                    return null
+                  } else {
+                    console.log('Unknown error')
+                    return null
                   }
-                  chrome.storage.local.set(storageNewValue, () => {
-                    this.snackbarMessage = `Load tabs from server successfully, ${data.tabs.length} tabs list loaded`
-                    this.snackbar = true
-                  })
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error)
-                this.snackbarMessage = 'You got error when loading tabs from server' + error
-                this.snackbar = true
-              })
+                })
+                .then(async data => {
+                  // console.log('Get tabs response:', data)
+
+                  if (data && data.tabs) {
+                    this.$store.commit('setLists', data.tabs)
+
+                    const storageNewValue = {
+                      ...items,
+                      lists: data.tabs,
+                    }
+                    chrome.storage.local.set(storageNewValue, () => {
+                      this.snackbarMessage = `Load tabs from server successfully, ${data.tabs.length} tabs list loaded`
+                      this.snackbar = true
+                    })
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                  this.snackbarMessage = 'You got error when loading tabs from server' + error
+                  this.snackbar = true
+                })
           }
         } else {
           this.snackbarMessage = `You got error when read local storage`
@@ -552,21 +547,21 @@ export default {
               },
               body: JSON.stringify({
                 tabs: this.lists,
-                token
+                token,
               }),
             })
-              .then(async response => response.json())
-              .then(async data => {
-                if (data) {
-                  this.snackbarMessage = 'Load tabs from server successfully'
+                .then(async response => response.json())
+                .then(async data => {
+                  if (data) {
+                    this.snackbarMessage = 'Load tabs from server successfully'
+                    this.snackbar = true
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error)
+                  this.snackbarMessage = 'You got error when syncing tabs to server' + error
                   this.snackbar = true
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error)
-                this.snackbarMessage = 'You got error when syncing tabs to server' + error
-                this.snackbar = true
-              })
+                })
           } else {
             this.snackbarMessage = `wrong syncServerHost or token or username: ${syncServerHost}, ${token}, ${username}`
             this.snackbar = true
@@ -579,9 +574,10 @@ export default {
         }
       })
     },
-  }
+  },
 }
 </script>
+
 <style scoped>
 .v-toolbar {
   transition-delay: 0.1s;
@@ -589,12 +585,15 @@ export default {
   transition-property: box-shadow;
   transition-timing-function: ease;
 }
+
 .slide-enter-active, .slide-leave-active {
   transition: all ease-out .22s;
 }
+
 .fade-enter-to, .fade-leave {
   opacity: 1;
 }
+
 .fade-leave-to, .fade-enter {
   opacity: 0;
 }

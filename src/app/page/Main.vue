@@ -2,13 +2,13 @@
 <v-app :dark="nightmode" :class="{'no-transition': opts.disableTransition}">
   <drawer :value="drawer"></drawer>
   <toolbar></toolbar>
-  <v-content>
+  <v-main>
     <v-container>
       <keep-alive>
         <router-view></router-view>
       </keep-alive>
     </v-container>
-  </v-content>
+  </v-main>
   <v-footer>
     <v-spacer></v-spacer>
     <span>

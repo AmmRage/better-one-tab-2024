@@ -11,7 +11,7 @@
     </div>
 
     <v-expansion-panels
-        ref="panel" expand popout
+        ref="panel" multiple popout
         :readonly="opts.disableExpansion"
         :value="expandStatus"
         @input="expandStatusChanged"

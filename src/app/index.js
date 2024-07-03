@@ -29,10 +29,10 @@ Vue.config.devtools = true
 
 const app = new Vue({
   vuetify: new Vuetify({
-    theme: {
-      dark: true,
-      primary: colors.lightGreen,
-    },
+    // theme: {
+    //   dark: true,
+    //   primary: colors.lightGreen,
+    // },
   }),
   el: '#app',
   router,
