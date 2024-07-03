@@ -67,7 +67,7 @@ const storageChangedHandler = changes => {
   }
   if (changes.lists) {
     if (changes.lists.newValue && changes.lists.newValue.length) {
-      console.log('tabs to upload:', changes.lists.newValue)
+      // console.log('tabs to upload:', changes.lists.newValue)
       let syncServerHost = ''
       let token = ''
       let username = ''

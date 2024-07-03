@@ -27,6 +27,8 @@ export default {
     indexedLists(state) {
       return state.lists.map((list, index) => Object.assign({}, list, {index}))
     },
+
+    // get tab lists by with page parameter
     inPageLists(state) {
       return (page, lists) => lists.slice(
         (page - 1) * state.opts.listsPerPage,

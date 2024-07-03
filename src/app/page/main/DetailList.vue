@@ -1,4 +1,4 @@
-`<template>
+<template>
   <div>
 
     <div class="text-xs-center" v-if="pageLength > 1">
@@ -11,165 +11,182 @@
     </div>
 
     <v-expansion-panels
-        ref="panel" multiple popout
+        ref="panel"
+        v-model="panel"
+        multiple
+        popout
         :readonly="opts.disableExpansion"
         :value="expandStatus"
         @input="expandStatusChanged"
         class="my-3"
     >
       <v-expansion-panel
-          v-for="list in listsInView"
+          v-for="tabList in listsInView"
           hide-default-footer
           class="tab-list"
-          :key="list.index"
+          :key="tabList.index"
           ref="list"
+          @change="onTabListExpandChange(tabList)"
       >
         <v-expansion-panel-header>
           <v-flex no-wrap xs10>
-
             <v-menu open-on-hover top offset-y>
-              <v-chip
-                  slot="activator"
-                  label
-                  small
-                  :color="list.color"
-                  class="lighten-3"
-              >{{ list.tabs.length }} {{ __('ui_tab') }}
-              </v-chip>
+              <template v-slot:activator="{ on, attrs }">
+                <v-chip
+                    label
+                    small
+                    :color="tabList.color"
+                    class="lighten-3"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click.prevent.stop
+                >{{ tabList.tabs.length }} {{ __('ui_tab') }}
+                </v-chip>
+              </template>
               <v-card>
                 <v-layout wrap class="color-panel">
                   <v-flex wrap xs3 v-for="(color, colorIndex) in colorList" :key="colorIndex">
                     <div
                         class="color-selector lighten-3"
                         :class="color"
-                        @click.stop="changeColor([list.index, color])"
+                        @click.stop="changeColor([tabList.index, color])"
                     ></div>
                   </v-flex>
                 </v-layout>
               </v-card>
             </v-menu>
+            <!-- created at  -->
             <strong class="grey--text date">{{ __('ui_created') }}
-              <dynamic-time v-model="list.time"></dynamic-time>
+              <dynamic-time v-model="tabList.time"></dynamic-time>
             </strong>
-            <v-chip v-for="tag in list.tags" :color="getColorByHash(tag)" class="lighten-3" :key="tag" label small>
+
+            <v-chip v-for="tag in tabList.tags" :color="getColorByHash(tag)" class="lighten-3" :key="tag"
+                    label small>
               {{ tag }}
             </v-chip>
+
+            <!-- title -->
             <v-text-field
-                @keydown.enter="saveTitle(list.index)"
-                @blur="saveTitle(list.index)"
+                @keydown.enter="saveTitle(tabList.index)"
+                @blur="saveTitle(tabList.index)"
                 class="title-editor"
                 autofocus
-                v-if="list.titleEditing"
-                full-width
+                v-if="tabList.titleEditing"
                 @click.prevent.stop
-                :value="list.title"
-                @input="setTitle([list.index, $event])"
+                :value="tabList.title"
+                @input="setTitle([tabList.index, $event])"
                 single-line
                 hide-details
-                :class="'font-size-24px'"
             ></v-text-field>
             <div
                 class="list-title"
                 v-else
                 :class="[
             'font-size-24px', // + opts.titleFontSize
-            list.color ? list.color + '--text' : '',
+            tabList.color ? tabList.color + '--text' : '',
           ]"
-            >{{ list.title }}
+            >{{ tabList.title }}
             </div>
           </v-flex>
           <v-flex xs2 class="text-xs-right">
             <v-btn
                 :title="__('ui_title_down_btn')"
-                @click.stop="moveListDown(list.index)"
+                @click.stop="moveListDown(tabList.index)"
                 text icon class="icon-in-title"
                 v-if="$route.name === 'detailList'"
-                :disabled="list.index === lists.length - 1"
+                :disabled="tabList.index === lists.length - 1"
             >
               <v-icon color="gray" :style="{fontSize: '14px'}">fas fa-arrow-down</v-icon>
             </v-btn>
             <v-btn
                 :title="__('ui_title_up_btn')"
-                @click.stop="moveListUp(list.index)"
+                @click.stop="moveListUp(tabList.index)"
                 text icon class="icon-in-title"
                 v-if="$route.name === 'detailList'"
-                :disabled="list.index === 0"
+                :disabled="tabList.index === 0"
             >
               <v-icon color="gray" :style="{fontSize: '14px'}">fas fa-arrow-up</v-icon>
             </v-btn>
             <v-btn
                 :title="__('ui_title_pin_btn')"
-                @click.stop="pinList([list.index, !list.pinned])"
+                @click.stop="pinList([tabList.index, !tabList.pinned])"
                 text icon class="icon-in-title"
             >
-              <v-icon :color="list.pinned ? 'blue' : 'gray'" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
+              <v-icon :color="tabList.pinned ? 'blue' : 'gray'" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
             </v-btn>
           </v-flex>
         </v-expansion-panel-header>
+
         <v-expansion-panel-content>
           <v-card>
             <v-layout>
               <v-flex class="checkbox-column">
+                <!-- check box select all -->
                 <v-checkbox
                     hide-details
-                    class="checkbox"
-                    :value="list.tabs.some(tab => tab.selected)"
-                    @click.self.stop="selectAllBtnClicked(list.index)"
-                    :indeterminate="list.tabs.some(tab => tab.selected) && list.tabs.some(tab => !tab.selected)"
+                    class="checkbox ml-5"
+                    :value="tabList.tabs.some(tab => tab.selected)"
+                    :indeterminate="tabList.tabs.some(tab => tab.selected) && tabList.tabs.some(tab => !tab.selected)"
+                    @change="selectAllBtnClicked(tabList.index)"
                 ></v-checkbox>
               </v-flex>
-              <v-flex>
+              <v-flex class="ml-1">
                 <v-btn
-                    :ref="'multi-op-' + list.index"
-                    text small v-on:click="multiOpBtnClicked(list.index, $event)"
-                    icon :disabled="list.tabs.every(tab => !tab.selected)"
+                    :ref="'multi-op-' + tabList.index"
+                    text small v-on:click="multiOpBtnClicked(tabList.index, $event)"
+                    icon :disabled="tabList.tabs.every(tab => !tab.selected)"
                 >
                   <v-icon>more_vert</v-icon>
                 </v-btn>
-                <v-btn text small v-on:click="openChangeTitle(list.index)">{{ __('ui_retitle_list') }}</v-btn>
-                <v-btn text small v-on:click="restoreList([list.index])">{{ __('ui_restore_all') }}</v-btn>
-                <v-btn text small v-on:click="restoreList([list.index, true])">{{
+                <v-btn text small v-on:click="changeTabListTitleBtnClicked(tabList.index)">{{ __('ui_retitle_list') }}</v-btn>
+                <v-btn text small v-on:click="restoreList([tabList.index])">{{ __('ui_restore_all') }}</v-btn>
+                <v-btn text small v-on:click="restoreList([tabList.index, true])">{{
                     __('ui_restore_all_in_new_window')
                   }}
                 </v-btn>
-                <v-btn text small color="error" v-on:click="removeList(list.index)" :disabled="list.pinned">
+                <v-btn text small color="error" v-on:click="removeList(tabList.index)" :disabled="tabList.pinned">
                   {{ __('ui_remove_list') }}
                 </v-btn>
-                <v-btn text small v-on:click="pinList([list.index, !list.pinned])">
-                  {{ list.pinned ? __('ui_unpin') : __('ui_pin') }} {{ __('ui_list') }}
+                <v-btn text small v-on:click="pinList([tabList.index, !tabList.pinned])">
+                  {{ tabList.pinned ? __('ui_unpin') : __('ui_pin') }} {{ __('ui_list') }}
                 </v-btn>
-                <v-btn text small v-on:click="editTag(list.index, $event)" :ref="'edit-tag-' + list.index">EDIT TAG
+                <v-btn text small v-on:click="editTag(tabList.index, $event)" :ref="'edit-tag-' + tabList.index">EDIT TAG
                 </v-btn>
               </v-flex>
             </v-layout>
             <v-divider></v-divider>
             <v-list dense class="my-1">
               <draggable
-                  :value="list.tabs"
-                  @input="setTabs([list.index, $event])"
-                  :options="draggableOptions"
-                  @change="tabMoved([list.index])"
+                  :value="tabList.tabs"
+                  @input="setTabs([tabList.index, $event])"
+                  v-bind="draggableOptions"
+                  @change="tabMoved([tabList.index])"
               >
                 <v-list-item
-                    v-for="(tab, tabIndex) in list.tabs"
+                    v-for="(tab, tabIndex) in tabList.tabs"
                     :href="opts.itemClickAction !== 'none' ? tab.url : null"
                     :target="opts.itemClickAction !== 'none' ? '_blank' : null"
-                    @click.stop="itemClicked([list.index, tabIndex])"
-                    @contextmenu="rightClicked(list.index, tabIndex, $event)"
+                    @click.stop="itemClicked([tabList.index, tabIndex])"
+                    @contextmenu="rightClicked(tabList.index, tabIndex, $event)"
                     class="list-item"
-                    :ref="'list-' + list.index + '-tab'"
+                    :ref="'list-' + tabList.index + '-tab'"
                     :key="tabIndex"
-                    v-if="tabIndex < 10 || list.showAll"
+                    v-if="tabIndex < 10 || tabList.showAll"
                 >
-                  <div class="drag-indicator" @click.stop.prevent><i></i></div>
+                  <!-- per url/tab checkbox -->
                   <v-list-item-action>
-                    <v-checkbox
-                        hide-details
-                        class="checkbox"
-                        :value="tab.selected"
-                        @click.prevent.stop.self="tabSelected([list.index, tabIndex, !tab.selected])"
-                    ></v-checkbox>
                   </v-list-item-action>
+
+                  <v-checkbox
+                      hide-details
+                      class="checkbox"
+                      :value="tab.selected"
+                      @click.prevent.stop.self="tabSelected([tabList.index, tabIndex, !tab.selected])"
+                      @change="singleTabChecked(tabList.index, tabIndex, !tab.selected)"
+                  ></v-checkbox>
+
+                  <div class="drag-indicator" @click.stop.prevent><i></i></div>
+
                   <v-list-item-content>
                     <v-list-item-title>
                       <v-avatar
@@ -188,9 +205,9 @@
                     </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
-                <v-layout v-if="list.tabs.length > 10 && !list.showAll">
+                <v-layout v-if="tabList.tabs.length > 10 && !tabList.showAll">
                   <v-flex class="text-xs-center">
-                    <v-btn small text @click="showAll(list.index)">
+                    <v-btn small text @click="showAll(tabList.index)">
                       <v-icon>more_horiz</v-icon>
                     </v-btn>
                   </v-flex>
@@ -199,7 +216,6 @@
             </v-list>
           </v-card>
         </v-expansion-panel-content>
-
       </v-expansion-panel>
     </v-expansion-panels>
 
@@ -224,8 +240,11 @@
       <v-btn :key="1" v-if="scrollY > 100" color="pink" fab fixed bottom right @click="$vuetify.goTo(0)">
         <v-icon>keyboard_arrow_up</v-icon>
       </v-btn>
-      <v-btn :key="2" v-else color="green" fab fixed bottom right title="fold all lists" @click="foldAll">
-        <v-icon>subject</v-icon>
+      <v-btn :key="2" v-else color="green" fab fixed bottom right title="fold all lists" @click="collapseAll">
+<!--        <v-icon v-if="panel.length > 0">unfold_less_double</v-icon>-->
+<!--        <v-icon v-if="panel.length = 0">unfold_more_double</v-icon>-->
+
+            <v-icon>unfold_less_double</v-icon>
       </v-btn>
     </v-fab-transition>
 
@@ -311,13 +330,11 @@ export default {
         value: [],
         input: '',
       },
-      // tagInView: null,
+      panel: [],
     }
   },
   watch: {
-    // '$route.query.p': 'updateExpandStatus',
     listsToDisplay: 'updateExpandStatus',
-    // '$route.params.tag': 'setTagInView'
   },
   computed: {
     ...mapGetters(['inPageLists', 'getPageLength', 'taggedList', 'indexedLists', 'pinnedList']),
@@ -334,7 +351,20 @@ export default {
         : this.indexedLists
     },
     listsInView() {
-      return this.inPageLists(this.currentPage, this.listsToDisplay)
+      let tabListsInView = this.inPageLists(this.currentPage, this.listsToDisplay)
+      // console.debug('listsInView', tabListsInView)
+      let panelValueToUpdate = []
+
+      for (let i = 0; i < tabListsInView.length; i++) {
+        const tabList = tabListsInView[i]
+        // if (tabList.expand === true) {
+        //   panelValueToUpdate.push(tabList.index)
+        // }
+        panelValueToUpdate.push(tabList.index)
+      }
+      this.panel = panelValueToUpdate
+
+      return tabListsInView
     },
     pageLength() {
       return this.getPageLength(this.listsToDisplay.length)
@@ -369,7 +399,6 @@ export default {
     ]),
     init() {
       if (DEBUG) window.dl = this
-      // this.setTagInView()
       this.getLists().then(() => {
         this.updateExpandStatus()
         if (!this.processed) {
@@ -389,6 +418,7 @@ export default {
       return this.listsInView.map(i => i.expand !== false)
     },
     expandStatusChanged(newStatus) {
+      // console.debug('expandStatusChanged', newStatus)
       const indexInPage = this.expandStatus.findIndex((s, i) => s !== newStatus[i])
       if (!~indexInPage) return
       const index = indexInPage + (this.currentPage - 1) * this.opts.listsPerPage
@@ -401,6 +431,7 @@ export default {
         this.expandStatus = this.listsToDisplay.map(() => true)
       } else {
         this.expandStatus = this.getExpandStatus()
+        // console.debug('updateExpandStatus', this.expandStatus)
       }
     },
     getDomain(url) {
@@ -465,7 +496,7 @@ export default {
 
       if (targetListIndex === -1) {
         const newList = createNewTabList({tabs})
-        console.debug('newList', newList)
+        // console.debug('newList', newList)
         this.addList([newList])
         this.tabMoved(changedLists.map(i => i + 1)) // it will create a new list
       } else {
@@ -542,11 +573,15 @@ export default {
       })
     },
     selectAllBtnClicked(listIndex) {
+      // console.debug('selectAllBtnClicked', listIndex)
       const list = this.lists[listIndex]
       const targetStatus = list.tabs.every(tab => !tab.selected)
       for (let i = 0; i < list.tabs.length; i += 1) {
         this.tabSelected([listIndex, i, targetStatus])
       }
+    },
+    singleTabChecked(parameterArray){
+
     },
     multiOpBtnClicked(listIndex, $event) {
       this.showMenu = false
@@ -581,12 +616,9 @@ export default {
         this.currentHighlightItem.$el.classList.add('elevation-20')
       }, 0)
     },
-    async foldAll() {
-      this.listsInView.forEach(list => {
-        this.expandList([false, list.index])
-      })
-      await this.$nextTick()
-      return this.updateExpandStatus()
+    async collapseAll() {
+      // console.debug('collapseAll')
+      this.panel = []
     },
     editTag(listIndex, $event) {
       this.tag.listIndex = listIndex
@@ -598,9 +630,13 @@ export default {
     tagChanged(tags) {
       this.setTags([this.tag.listIndex, tags])
     },
-    // setTagInView() {
-    //   this.tagInView = this.$route.params.tag
-    // }
+    changeTabListTitleBtnClicked(tabListIndex){
+      // console.debug('changeTabListTitleBtnClicked', tabListIndex)
+      this.openChangeTitle(tabListIndex)
+    },
+    onTabListExpandChange(changeValue) {
+      // console.debug('onTabListExpandChange', changeValue)
+    },
   },
 }
 </script>
@@ -624,20 +660,17 @@ export default {
 }
 
 .date {
-  font-size: 16px;
+  font-size: 12px;
+  margin-left: 12px;
 }
 
 .title-editor {
   padding: 0;
   position: absolute;
   display: inline-flex;
-  width: 80%;
-  ///deep/ .v-input__slot {
-  //  min-height: 32px !important;
-  //}
-  ///deep/ input {
-  //  margin-top: 0 !important;
-  //}
+  width: 40%;
+  font-size: 24px;
+  margin-left: 100px;
 }
 
 .list-title {
@@ -688,12 +721,12 @@ export default {
 
   .checkbox-column {
     max-width: 40px;
-    margin-left: 16px;
+    margin-left: 40px;
 
     .checkbox {
-      margin-left: 20px;
+      margin-left: 0;
       margin-top: 0;
-      padding-top: (40px - 24px) / 2;
+      //padding-top: (40px - 24px) / 2;
     }
   }
 }
@@ -715,9 +748,11 @@ export default {
 
 .list-item {
   padding-bottom: 20px;
+  padding-left: 4px;
 
   .checkbox {
-    margin-left: 20px;
+    margin-right: 5px;
+    margin-top: 0;
   }
 
   .clear-btn {
