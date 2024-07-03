@@ -12,7 +12,7 @@
     <!-- display mode -->
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn icon @click="switchNightMode"
+        <v-btn icon @click="changeThemeBtnClicked"
                v-bind="attrs"
                v-on="on"
         >
@@ -598,6 +598,11 @@ export default {
         }
       })
     },
+    changeThemeBtnClicked(){
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+      // console.debug('this.$vuetify', this.$vuetify.theme)
+      console.debug('changeThemeBtnClicked: hasToken:', this.hasToken)
+    }
   },
 }
 </script>
