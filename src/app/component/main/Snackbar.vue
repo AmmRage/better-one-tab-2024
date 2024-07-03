@@ -1,7 +1,7 @@
 <template>
 <v-snackbar
   :timeout="-1"
-  bottom
+  location="bottom"
   v-model="snackbar.status"
 >
   {{ snackbar.msg }}

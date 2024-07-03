@@ -8,16 +8,17 @@
           The motivation of this fork is to learn rust by create a simple server to host the tabs api.
         </h3>
         <v-divider></v-divider>
-        <v-subheader>Storage Usage: {{ storageUsage }} Bytes</v-subheader>
+        <v-list-subheader>Storage Usage: {{ storageUsage }} Bytes</v-list-subheader>
         <v-divider></v-divider>
         <v-card class="mt-5 mb-5">
           <v-list>
-            <v-list-item>
-              <v-list-item-avatar tile>
-                <img src="~@/assets/icons/icon_128.png">
-              </v-list-item-avatar>
+            <v-list-item >
+<!--              migration-->
+<!--              <v-list-item-avatar tile>-->
+<!--                <img src="~@/assets/icons/icon_128.png">-->
+<!--              </v-list-item-avatar>-->
 
-              <v-list-item-content>
+
                 <v-list-item-title>Better-One-Tab-2024</v-list-item-title>
                 <v-list-item-subtitle>
                   <span>Version: {{ version }}</span>
@@ -25,7 +26,7 @@
                   <span v-else>(Already the latest version)</span>
                 </v-list-item-subtitle>
 
-              </v-list-item-content>
+
 
 
               <v-list-item-action>
@@ -37,8 +38,8 @@
         </v-card>
 
         <v-divider></v-divider>
-        <v-subheader class="mt-5">Change Logs</v-subheader>
-        <v-btn text block href="https://github.com/cnwangjie/better-onetab/blob/master/CHANGELOG.md">Click to view the
+        <v-list-subheader class="mt-5">Change Logs</v-list-subheader>
+        <v-btn variant="text" block href="https://github.com/cnwangjie/better-onetab/blob/master/CHANGELOG.md">Click to view the
           whole change logs
         </v-btn>
       </v-flex>

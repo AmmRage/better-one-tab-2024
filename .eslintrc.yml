@@ -4,6 +4,7 @@ env:
   webextensions: true
 extends:
   - plugin:vue/base
+  - plugin:vuetify/base
 parserOptions:
   parser: babel-eslint
   ecmaVersion: 8
@@ -11,6 +12,10 @@ parserOptions:
 rules:
   no-console: 0
   linebreak-style: 'off'
+  array-bracket-spacing: ['error', 'never']
+  vuetify/no-deprecated-colors: [ 'error', {
+    themeColors: [ 'tertiary' ]
+  } ]
 globals:
   DEBUG: true
   PRODUCTION: true

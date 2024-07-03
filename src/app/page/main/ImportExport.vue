@@ -1,14 +1,14 @@
 <template>
 <v-card>
   <v-tabs
-      background-color="cyan"
+      bg-color="cyan"
 
     grow
     slider-color="yellow"
   >
     <v-tab key="import">{{ __('ui_import') }}</v-tab>
     <v-tab key="export">{{ __('ui_export') }}</v-tab>
-    <v-tab-item key="import">
+    <v-window-item key="import">
       <v-card flat>
         <v-card-text>
           <v-btn :loading="processing" @click="imp(true)" :disabled="!importData">{{ __('ui_import_comp') }}</v-btn>
@@ -16,7 +16,7 @@
           <input ref="fileSelector" type="file" hidden @change="impFile"></input>
           <v-btn :loading="processing" @click="$refs.fileSelector.click()">
             {{ __('ui_import_from_file') }}
-            <v-icon right>attach_file</v-icon>
+            <v-icon end>attach_file</v-icon>
           </v-btn>
           <v-textarea
             autofocus
@@ -26,8 +26,8 @@
           ></v-textarea>
         </v-card-text>
       </v-card>
-    </v-tab-item>
-    <v-tab-item key="export">
+    </v-window-item>
+    <v-window-item key="export">
       <v-card flat>
         <v-card-text>
           <v-btn @click="exp(true)">{{ __('ui_export_comp') }}</v-btn>
@@ -39,7 +39,7 @@
             :loading="saving"
           >
             {{ __('ui_save_to_gdrive') }}
-            <v-icon drak right>fab fa-google-drive</v-icon>
+            <v-icon drak end>fab fa-google-drive</v-icon>
           </v-btn>
           <v-textarea
             auto-grow
@@ -48,12 +48,12 @@
           ></v-textarea>
         </v-card-text>
       </v-card>
-    </v-tab-item>
+    </v-window-item>
   </v-tabs>
 
 
   <v-fab-transition>
-    <v-btn v-if="scrollY > 100" color="pink" fab fixed bottom right @click="$vuetify.goTo(0)">
+    <v-btn v-if="scrollY > 100" color="pink" fixed location="bottom right"  @click="$vuetify.goTo(0)">
       <v-icon>keyboard_arrow_up</v-icon>
     </v-btn>
   </v-fab-transition>

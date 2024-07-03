@@ -4,7 +4,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 const path = require('path')
 
 const config = {
@@ -68,7 +67,6 @@ module.exports = {
       inject: true,
     }),
     new VueLoaderPlugin(),
-    new VuetifyLoaderPlugin(),
   ],
   performance: {
     hints: false,
@@ -83,8 +81,9 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
+      vue: '@vue/compat',
       'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src'),
+      '@': resolve('src')
     }
   },
   module: {
@@ -92,6 +91,13 @@ module.exports = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
+        options: {
+          compilerOptions: {
+            compatConfig: {
+              MODE: 2
+            }
+          }
+        }
       },
       {
         test: /\.js$/,

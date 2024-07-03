@@ -1,6 +1,6 @@
 <template>
 <v-app :style="{width: '360px'}" >
-  <v-list dense v-if="lists.length > 0">
+  <v-list density="compact" v-if="lists.length > 0">
     <template v-for="(list, index) in lists">
       <v-list-item
         ripple
@@ -9,13 +9,13 @@
         :color="list.color"
         class="list-item"
       >
-        <v-list-item-content>
+        
           <v-list-item-title><strong>[{{ list.tabs.length }}]</strong> {{ friendlyTitle(list) }}</v-list-item-title>
           <v-list-item-subtitle>{{ formatTime(list.time) }}</v-list-item-subtitle>
-        </v-list-item-content>
+        
         <v-list-item-action>
-          <div class="text-xs-right">
-            <v-btn small class="list-item-btn-hover" text icon title="store select tab into this list" @click.stop="storeInto(index)">
+          <div class="text-right">
+            <v-btn size="small" class="list-item-btn-hover" variant="text" icon title="store select tab into this list" @click.stop="storeInto(index)">
               <v-icon :style="{fontSize: '14px'}">add</v-icon>
             </v-btn>
             <v-icon v-show="list.pinned" class="list-item-icon" color="blue" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
@@ -39,7 +39,7 @@
     :style="{minHeight: '100px'}"
     v-if="processed && lists.length === 0" align-center justify-center column fill-height
   >
-    <h3 class="display-2 grey--text" v-text="__('ui_no_list')"></h3>
+    <h3 class="text-h3 text-grey" v-text="__('ui_no_list')"></h3>
   </v-layout>
 </v-app>
 </template>

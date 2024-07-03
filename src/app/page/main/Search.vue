@@ -6,11 +6,11 @@
   >
     <v-flex wrap xs12 sm6 offset-sm3 class="my-3 search-item" key="color" v-if="card > 0">
       <v-card>
-        <v-subheader>Color</v-subheader>
+        <v-list-subheader>Color</v-list-subheader>
         <div>
           <div class="color-placeholder" v-for="color in listColors" :key="color">
             <router-link
-              class="lighten-3 color-btn" :class="color" replace
+              class="text-black-lighten-3 color-btn" :class="color" replace
               :to="{name: 'search', query: {q: encodeURIComponent('color:' + color + ' ')}}"
             ></router-link>
           </div>
@@ -19,14 +19,14 @@
     </v-flex>
     <v-flex wrap xs12 sm6 offset-sm3 class="my-3 search-item" key="tag" v-if="card > 1 && hasTags">
       <v-card>
-        <v-subheader>Tag</v-subheader>
+        <v-list-subheader>Tag</v-list-subheader>
 
         <v-container grid-list-lg fluid class="pa-0">
           <v-layout row wrap>
             <v-flex class="tag-placeholder pa-1" xs6 md4 lg3 v-for="(lists, tag) in taggedList" :key="tag">
               <router-link :to="{name: 'search', query: {q: encodeURIComponent('tag:' + tag + ' ')}}">
-                <div class="tag-bg grey lighten-3">
-                  <v-icon x-large class="tag-icon">label</v-icon>
+                <div class="tag-bg bg-grey-lighten-3">
+                  <v-icon size="x-large" class="tag-icon">label</v-icon>
                   <div class="tag-name">{{ tag }}</div>
                 </div>
               </router-link>
@@ -43,10 +43,14 @@
         v-for="(item, index) in items" :key="index"
         :to="{name: 'detailList', query: item.value}"
       >
-        <v-list-item-content :class="item.color + '--text'">
-          <v-list-item-title v-text="item.title"></v-list-item-title>
-          <v-list-item-subtitle v-text="item.subtitle"></v-list-item-subtitle>
-        </v-list-item-content>
+<!--        <v-list-item-content :class="item.color + '&#45;&#45;text'">-->
+<!--          <v-list-item-title v-text="item.title"></v-list-item-title>-->
+<!--          <v-list-item-subtitle v-text="item.subtitle"></v-list-item-subtitle>-->
+<!--        </v-list-item-content>-->
+
+        <v-list-item-title v-text="item.title"></v-list-item-title>
+        <v-list-item-subtitle v-text="item.subtitle"></v-list-item-subtitle>
+
         <v-list-item-action>
           <v-icon>{{ 'tabIndex' in item.value ? 'link' : 'list' }}</v-icon>
         </v-list-item-action>

@@ -1,5 +1,6 @@
 <template>
-  <v-app-bar app clipped-left  :flat="flat" v-scroll="onScroll" >
+  <v-app-bar
+      :flat="flat" v-scroll="onScroll" >
     <v-app-bar-nav-icon @click="switchDrawer"></v-app-bar-nav-icon>
     <v-toolbar-title >Better OneTab 2024</v-toolbar-title>
     <v-spacer></v-spacer>
@@ -10,11 +11,11 @@
     <v-spacer></v-spacer>
 
     <!-- display mode -->
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template v-slot:activator="{ props }">
         <v-btn icon @click="changeThemeBtnClicked"
-               v-bind="attrs"
-               v-on="on"
+
+               v-bind="props"
         >
           <v-icon>{{ nightmode ? 'brightness_5' : 'brightness_4' }}</v-icon>
         </v-btn>
@@ -23,11 +24,11 @@
     </v-tooltip>
 
     <!-- history -->
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template v-slot:activator="{ props }">
         <v-btn icon :disabled="!online" @click="showHistoryBtnClicked"
-               v-bind="attrs"
-               v-on="on"
+
+               v-bind="props"
         >
           <transition name="fade" mode="out-in">
             <span class="material-icons">history</span>
@@ -38,11 +39,11 @@
     </v-tooltip>
 
     <!-- login / sync icon -->
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template v-slot:activator="{ props }">
         <v-btn icon :loading="syncing" :disabled="!online" @click="syncBtnClicked"
-               v-bind="attrs"
-               v-on="on"
+
+               v-bind="props"
         >
           <transition name="fade" mode="out-in">
             <span v-if="!online" class="material-icons">cloud_off</span>
@@ -59,11 +60,11 @@
     </v-tooltip>
 
     <!-- download -->
-    <v-tooltip v-if="hasToken" bottom>
-      <template v-slot:activator="{ on, attrs }">
+    <v-tooltip v-if="hasToken" location="bottom">
+      <template v-slot:activator="{ props }">
         <v-btn icon :disabled="!online" @click="loadBtnClicked"
-               v-bind="attrs"
-               v-on="on"
+
+               v-bind="props"
         >
           <transition name="fade" mode="out-in">
             <span class="material-icons">cloud_download</span>
@@ -75,11 +76,11 @@
     </v-tooltip>
 
     <!-- logout -->
-    <v-tooltip v-if="this.hasToken" bottom>
-      <template v-slot:activator="{ on, attrs }">
+    <v-tooltip v-if="this.hasToken" location="bottom">
+      <template v-slot:activator="{ props }">
         <v-btn icon :disabled="!online"
-               v-bind="attrs"
-               v-on="on"
+
+               v-bind="props"
                @click="logoutBtnClicked">
           <transition name="fade" mode="out-in">
             <span class="material-icons">logout</span>
@@ -92,10 +93,10 @@
     <v-snackbar
         v-model="snackbar"
         :timeout="30000"
-        top
+        location="top"
     >
       {{ this.snackbarMessage }}
-      <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>
+      <v-btn color="pink" variant="text" @click="this.snackbar = false">Close</v-btn>
     </v-snackbar>
 
     <!-- modal -->
@@ -115,31 +116,31 @@
                                color="green"
                                indeterminate
           ></v-progress-circular>
-          <v-list v-if="!historyLoading" two-line>
+          <v-list v-if="!historyLoading" lines="two">
             <template v-for="(item, index) in items" >
               <v-list-item
                   :key="item.title"
                   ripple
                   @click="toggle(index)"
               >
-                <v-list-item-content>
+
                   <v-list-item-title>{{ item.title }}</v-list-item-title>
                   <v-list-item-subtitle class="text--primary">{{ item.headline }}</v-list-item-subtitle>
                   <v-list-item-subtitle>{{ item.subtitle }}</v-list-item-subtitle>
-                </v-list-item-content>
+
 
                 <v-list-item-action>
                   <v-list-item-action-text>{{ item.action }}</v-list-item-action-text>
                   <v-icon
                       v-if="selected.indexOf(index) < 0"
-                      color="grey lighten-1"
+                      color="grey-lighten-1"
                   >
                     star_border
                   </v-icon>
 
                   <v-icon
                       v-else
-                      color="yellow darken-2"
+                      color="yellow-darken-2"
                   >
                     star
                   </v-icon>
@@ -156,15 +157,15 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn
-              color="blue darken-1"
-              text
+              color="blue-darken-1"
+              variant="text"
               @click="showHistoryDialog = false"
           >
             Close
           </v-btn>
           <v-btn
-              color="blue darken-1"
-              text
+              color="blue-darken-1"
+              variant="text"
               @click="showHistoryDialog = false"
           >
             Save

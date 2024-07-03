@@ -2,9 +2,6 @@
 <v-navigation-drawer
   class="app-drawer text-body-2"
   v-model="value"
-  fixed
-  clipped
-  app
   floating
   width="300px"
 >
@@ -13,71 +10,71 @@
       <v-list-item-action>
         <v-icon>list</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_tab_list') }}
-      </v-list-item-content>
+
     </v-list-item>
     <v-list-item :to="'/app/list/pinned'" exact>
       <v-list-item-action>
         <v-icon>done</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_pinned') }}
-      </v-list-item-content>
+
     </v-list-item>
     <v-list-item v-for="(lists, tag) in taggedList" :key="tag" :to="'/app/list/tag/' + tag">
       <v-list-item-action>
         <v-icon>label</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ tag }}
-      </v-list-item-content>
+
     </v-list-item>
     <v-divider class="my-1"></v-divider>
     <v-list-item :to="'/app/options'">
       <v-list-item-action>
         <v-icon>settings</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_options') }}
-      </v-list-item-content>
+
     </v-list-item>
 
     <v-list-item :to="'/app/import-export'">
       <v-list-item-action>
         <v-icon>import_export</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_export_import') }}
-      </v-list-item-content>
+
     </v-list-item>
     <v-list-item @click="openShortcutPage" :disabled="isLowFirefox">
       <v-list-item-action>
         <v-icon>keyboard</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_keyboard_shortcuts') }}
-      </v-list-item-content>
+
       <v-list-item-action>
-        <v-icon small>open_in_new</v-icon>
+        <v-icon size="small">open_in_new</v-icon>
       </v-list-item-action>
     </v-list-item>
     <v-list-item target="_blank" href="https://github.com/AmmRage/better-one-tab-2024/issues/new/choose">
       <v-list-item-action>
         <v-icon>feedback</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_create_issue') }}
-      </v-list-item-content>
+
     </v-list-item>
 
     <v-list-item :to="'/app/about'">
       <v-list-item-action>
         <v-icon>info</v-icon>
       </v-list-item-action>
-      <v-list-item-content>
+
         {{ __('ui_about') }}
-      </v-list-item-content>
+
     </v-list-item>
 <!--    <v-list-item href="https://gitter.im/better-onetab/Lobby?utm_source=app">-->
 <!--      <v-list-item-action>-->

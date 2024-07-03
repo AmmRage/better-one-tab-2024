@@ -1,6 +1,6 @@
 <template>
   <v-text-field
-      solo-inverted
+      variant="solo-inverted"
       flat
       clearable
       hide-details

@@ -1,12 +1,12 @@
 <template>
   <div>
 
-    <div class="text-xs-center" v-if="pageLength > 1">
+    <div class="text-center" v-if="pageLength > 1">
       <v-pagination
-          :value="currentPage"
-          @input="changePage"
+          :model-value="currentPage"
+          @update:model-value="changePage"
           :length="pageLength"
-          circle
+          rounded
       ></v-pagination>
     </div>
 
@@ -14,9 +14,9 @@
         ref="panel"
         v-model="panel"
         multiple
-        popout
+        variant="popout"
         :readonly="opts.disableExpansion"
-        :value="expandStatus"
+        :model-value="expandStatus"
         @input="expandStatusChanged"
         class="my-3"
     >
@@ -26,19 +26,18 @@
           class="tab-list"
           :key="tabList.index"
           ref="list"
-          @change="onTabListExpandChange(tabList)"
+          @group:selected="onTabListExpandChange(tabList)"
       >
-        <v-expansion-panel-header>
+        <v-expansion-panel-title>
           <v-flex no-wrap xs10>
-            <v-menu open-on-hover top offset-y>
-              <template v-slot:activator="{ on, attrs }">
+            <v-menu open-on-hover location="top" >
+              <template v-slot:activator="{ props }">
                 <v-chip
                     label
-                    small
+                    size="small"
                     :color="tabList.color"
-                    class="lighten-3"
-                    v-bind="attrs"
-                    v-on="on"
+                    class="text-black-lighten-3"
+                    v-bind="props"
                     @click.prevent.stop
                 >{{ tabList.tabs.length }} {{ __('ui_tab') }}
                 </v-chip>
@@ -47,7 +46,7 @@
                 <v-layout wrap class="color-panel">
                   <v-flex wrap xs3 v-for="(color, colorIndex) in colorList" :key="colorIndex">
                     <div
-                        class="color-selector lighten-3"
+                        class="color-selector text-black-lighten-3"
                         :class="color"
                         @click.stop="changeColor([tabList.index, color])"
                     ></div>
@@ -56,12 +55,12 @@
               </v-card>
             </v-menu>
             <!-- created at  -->
-            <strong class="grey--text date">{{ __('ui_created') }}
+            <strong class="text-grey date">{{ __('ui_created') }}
               <dynamic-time v-model="tabList.time"></dynamic-time>
             </strong>
 
-            <v-chip v-for="tag in tabList.tags" :color="getColorByHash(tag)" class="lighten-3" :key="tag"
-                    label small>
+            <v-chip v-for="tag in tabList.tags" :color="getColorByHash(tag)" class="text-black-lighten-3" :key="tag"
+                    label size="small">
               {{ tag }}
             </v-chip>
 
@@ -73,8 +72,8 @@
                 autofocus
                 v-if="tabList.titleEditing"
                 @click.prevent.stop
-                :value="tabList.title"
-                @input="setTitle([tabList.index, $event])"
+                :model-value="tabList.title"
+                @update:model-value="setTitle([tabList.index, $event])"
                 single-line
                 hide-details
             ></v-text-field>
@@ -88,11 +87,11 @@
             >{{ tabList.title }}
             </div>
           </v-flex>
-          <v-flex xs2 class="text-xs-right">
+          <v-flex xs2 class="text-right">
             <v-btn
                 :title="__('ui_title_down_btn')"
                 @click.stop="moveListDown(tabList.index)"
-                text icon class="icon-in-title"
+                variant="text" icon class="icon-in-title"
                 v-if="$route.name === 'detailList'"
                 :disabled="tabList.index === lists.length - 1"
             >
@@ -101,7 +100,7 @@
             <v-btn
                 :title="__('ui_title_up_btn')"
                 @click.stop="moveListUp(tabList.index)"
-                text icon class="icon-in-title"
+                variant="text" icon class="icon-in-title"
                 v-if="$route.name === 'detailList'"
                 :disabled="tabList.index === 0"
             >
@@ -110,14 +109,14 @@
             <v-btn
                 :title="__('ui_title_pin_btn')"
                 @click.stop="pinList([tabList.index, !tabList.pinned])"
-                text icon class="icon-in-title"
+                variant="text" icon class="icon-in-title"
             >
               <v-icon :color="tabList.pinned ? 'blue' : 'gray'" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
             </v-btn>
           </v-flex>
-        </v-expansion-panel-header>
+        </v-expansion-panel-title>
 
-        <v-expansion-panel-content>
+        <v-expansion-panel-text>
           <v-card>
             <v-layout>
               <v-flex class="checkbox-column">
@@ -127,35 +126,35 @@
                     class="checkbox ml-5"
                     :value="tabList.tabs.some(tab => tab.selected)"
                     :indeterminate="tabList.tabs.some(tab => tab.selected) && tabList.tabs.some(tab => !tab.selected)"
-                    @change="selectAllBtnClicked(tabList.index)"
+                    @update:model-value="selectAllBtnClicked(tabList.index)"
                 ></v-checkbox>
               </v-flex>
               <v-flex class="ml-1">
                 <v-btn
                     :ref="'multi-op-' + tabList.index"
-                    text small v-on:click="multiOpBtnClicked(tabList.index, $event)"
+                    variant="text" size="small" v-on:click="multiOpBtnClicked(tabList.index, $event)"
                     icon :disabled="tabList.tabs.every(tab => !tab.selected)"
                 >
                   <v-icon>more_vert</v-icon>
                 </v-btn>
-                <v-btn text small v-on:click="changeTabListTitleBtnClicked(tabList.index)">{{ __('ui_retitle_list') }}</v-btn>
-                <v-btn text small v-on:click="restoreList([tabList.index])">{{ __('ui_restore_all') }}</v-btn>
-                <v-btn text small v-on:click="restoreList([tabList.index, true])">{{
+                <v-btn variant="text" size="small" v-on:click="changeTabListTitleBtnClicked(tabList.index)">{{ __('ui_retitle_list') }}</v-btn>
+                <v-btn variant="text" size="small" v-on:click="restoreList([tabList.index])">{{ __('ui_restore_all') }}</v-btn>
+                <v-btn variant="text" size="small" v-on:click="restoreList([tabList.index, true])">{{
                     __('ui_restore_all_in_new_window')
                   }}
                 </v-btn>
-                <v-btn text small color="error" v-on:click="removeList(tabList.index)" :disabled="tabList.pinned">
+                <v-btn variant="text" size="small" color="error" v-on:click="removeList(tabList.index)" :disabled="tabList.pinned">
                   {{ __('ui_remove_list') }}
                 </v-btn>
-                <v-btn text small v-on:click="pinList([tabList.index, !tabList.pinned])">
+                <v-btn variant="text" size="small" v-on:click="pinList([tabList.index, !tabList.pinned])">
                   {{ tabList.pinned ? __('ui_unpin') : __('ui_pin') }} {{ __('ui_list') }}
                 </v-btn>
-                <v-btn text small v-on:click="editTag(tabList.index, $event)" :ref="'edit-tag-' + tabList.index">EDIT TAG
+                <v-btn variant="text" size="small" v-on:click="editTag(tabList.index, $event)" :ref="'edit-tag-' + tabList.index">EDIT TAG
                 </v-btn>
               </v-flex>
             </v-layout>
             <v-divider></v-divider>
-            <v-list dense class="my-1">
+            <v-list density="compact" class="my-1">
               <draggable
                   :value="tabList.tabs"
                   @input="setTabs([tabList.index, $event])"
@@ -182,17 +181,17 @@
                       class="checkbox"
                       :value="tab.selected"
                       @click.prevent.stop.self="tabSelected([tabList.index, tabIndex, !tab.selected])"
-                      @change="singleTabChecked(tabList.index, tabIndex, !tab.selected)"
+                      @update:model-value="singleTabChecked(tabList.index, tabIndex, !tab.selected)"
                   ></v-checkbox>
 
                   <div class="drag-indicator" @click.stop.prevent><i></i></div>
 
-                  <v-list-item-content>
+
                     <v-list-item-title>
                       <v-avatar
                           tile
                           size="16"
-                          color="grey lighten-4"
+                          color="grey-lighten-4"
                           v-if="!opts.hideFavicon"
                       >
                         <img
@@ -203,11 +202,11 @@
                     <v-list-item-subtitle v-if="opts.itemDisplay === 'title-and-url'">
                       {{ tab.url }}
                     </v-list-item-subtitle>
-                  </v-list-item-content>
+
                 </v-list-item>
                 <v-layout v-if="tabList.tabs.length > 10 && !tabList.showAll">
-                  <v-flex class="text-xs-center">
-                    <v-btn small text @click="showAll(tabList.index)">
+                  <v-flex class="text-center">
+                    <v-btn size="small" variant="text" @click="showAll(tabList.index)">
                       <v-icon>more_horiz</v-icon>
                     </v-btn>
                   </v-flex>
@@ -215,32 +214,32 @@
               </draggable>
             </v-list>
           </v-card>
-        </v-expansion-panel-content>
+        </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <div class="text-xs-center" v-if="pageLength > 1">
+    <div class="text-center" v-if="pageLength > 1">
       <v-pagination
-          :value="currentPage"
-          @input="changePage"
+          :model-value="currentPage"
+          @update:model-value="changePage"
           :length="pageLength"
-          circle
+          rounded
       ></v-pagination>
     </div>
 
     <v-layout v-if="processed && listsToDisplay.length === 0" align-center justify-center column fill-height
               class="no-list-tip">
-      <h3 class="display-3 grey--text" v-text="__('ui_no_list')"></h3>
-      <p class="display-2 grey--text text--lighten-1" v-html="__('ui_no_list_tip')"></p>
+      <h3 class="text-h2 text-grey" v-text="__('ui_no_list')"></h3>
+      <p class="text-h3 text-grey-lighten-1" v-html="__('ui_no_list_tip')"></p>
     </v-layout>
 
     <context-menu v-model="showMenu" ref="contextMenu" @click="contextMenuClicked"></context-menu>
 
     <v-fab-transition>
-      <v-btn :key="1" v-if="scrollY > 100" color="pink" fab fixed bottom right @click="$vuetify.goTo(0)">
+      <v-btn :key="1" v-if="scrollY > 100" color="pink"  fixed location="bottom right"  @click="$vuetify.goTo(0)">
         <v-icon>keyboard_arrow_up</v-icon>
       </v-btn>
-      <v-btn :key="2" v-else color="green" fab fixed bottom right title="fold all lists" @click="collapseAll">
+      <v-btn :key="2" v-else color="green"  fixed location="bottom right"  title="fold all lists" @click="collapseAll">
 <!--        <v-icon v-if="panel.length > 0">unfold_less_double</v-icon>-->
 <!--        <v-icon v-if="panel.length = 0">unfold_more_double</v-icon>-->
 
@@ -251,38 +250,34 @@
     <v-menu
         v-model="tag.editing"
         :close-on-content-click="false"
-        :position-x="tag.x"
-        :position-y="tag.y"
         absolute
-        offset-y
     >
       <v-combobox
           autofocus
           v-model="tag.value"
-          @input="tagChanged"
+          @update:model-value="tagChanged"
           :hide-no-data="!tag.input"
           :items="Object.keys(taggedList)"
-          :search-input.sync="tag.input"
+          :search.sync="tag.input"
           label="Search an existing tag"
           multiple
-          small-chips
-          solo
+          variant="solo"
           hide-details
-          dense
+          density="compact"
       >
         <template slot="no-data">
           <v-list-item>
-            <span class="subtitle-1">Create</span>
-            <v-chip label small>
+            <span class="text-subtitle-1">Create</span>
+            <v-chip label size="small">
               {{ tag.input }}
             </v-chip>
           </v-list-item>
         </template>
 
         <template slot="selection" slot-scope="{ item, parent, selected }">
-          <v-chip :v-model="selected" :color="getColorByHash(item)" class="lighten-3" label small>
+          <v-chip :v-model="selected" :color="getColorByHash(item)" class="text-black-lighten-3" label size="small">
             <span class="pr-2">{{ item }}</span>
-            <v-icon small @click="parent.selectItem(item)">close</v-icon>
+            <v-icon size="small" @click="parent.selectItem(item)">close</v-icon>
           </v-chip>
         </template>
 

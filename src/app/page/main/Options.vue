@@ -6,38 +6,38 @@
     <v-card>
       <v-card-text>
         <div v-for="(optionsList, cate) in optionsLists" :key="cate">
-          <v-subheader>{{ __('ui_options_' + cate) }}</v-subheader>
+          <v-list-subheader>{{ __('ui_options_' + cate) }}</v-list-subheader>
           <v-list>
             <template v-for="(option, optionIndex) in optionsList">
               <v-list-item>
-                <v-list-item-content>
+
                   <v-layout wrap row align-center style="width:100%">
                     <v-flex xs8>
-                      <v-subheader>
+                      <v-list-subheader>
                         <div>{{ __('opt_name_' + option.name) }}</div>
-                        <v-tooltip top v-if="isNew(option)">
-                          <v-chip v-slot="activator" outline color="red" small>NEW</v-chip>
+                        <v-tooltip location="top" v-if="isNew(option)">
+                          <v-chip v-slot="activator" variant="outlined" color="red" size="small">NEW</v-chip>
                           <span>{{ __('ui_new_warn') }}</span>
                         </v-tooltip>
 
-                        <v-tooltip top v-if="option.desc">
+                        <v-tooltip location="top" v-if="option.desc">
                           <v-icon slot="activator">help_outline</v-icon>
                           <p class="tooltip">{{ __('opt_desc_' + option.name) }}</p>
                         </v-tooltip>
 
-                      </v-subheader>
+                      </v-list-subheader>
                     </v-flex>
-                    <v-flex xs4 class="text-xs-right" align-center>
+                    <v-flex xs4 class="text-right" align-center>
                       <v-select
-                        dense
+                        density="compact"
                         class="select-amend"
                         v-if="option.type === String"
                         :items="option.items"
-                        :value="opts[option.name]"
+                        :model-value="opts[option.name]"
                         label=""
-                        item-text="label"
+                        item-title="label"
                         item-value="value"
-                        @change="optionsChanged(option.name, $event)"
+                        @update:model-value="optionsChanged(option.name, $event)"
                         :disabled="option.deps && !option.deps(opts)"
                       ></v-select>
                       <v-switch
@@ -45,31 +45,31 @@
                         color="primary"
                         v-if="option.type === Boolean"
                         v-model="opts[option.name]"
-                        @change="optionsChanged(option.name, $event)"
+                        @update:model-value="optionsChanged(option.name, $event)"
                         :disabled="option.deps && !option.deps(opts)"
                       ></v-switch>
                     </v-flex>
                   </v-layout>
-                </v-list-item-content>
+
               </v-list-item>
               <v-divider v-if="optionIndex !== optionsList.length - 1"></v-divider>
             </template>
           </v-list>
         </div>  <!-- loop render end -->
 
-        <v-subheader>{{ __('ui_options_sync') }}</v-subheader>
+        <v-list-subheader>{{ __('ui_options_sync') }}</v-list-subheader>
 
         <v-list>
           <v-list-item>
-            <v-list-item-content>
 
-              <v-subheader>
+
+              <v-list-subheader>
                 Sync
-              </v-subheader>
-            </v-list-item-content>
+              </v-list-subheader>
+
             <v-list-item-action>
               <v-btn icon ripple :to="'/app/options/sync'">
-                <v-icon color="grey lighten-1">arrow_forward</v-icon>
+                <v-icon color="grey-lighten-1">arrow_forward</v-icon>
               </v-btn>
             </v-list-item-action>
           </v-list-item>
@@ -82,7 +82,7 @@
   </v-layout>
   <v-snackbar
     :timeout="2000"
-    bottom
+    location="bottom"
     v-model="snackbar"
   >
     {{ __('ui_opt_changes_saved') }}
