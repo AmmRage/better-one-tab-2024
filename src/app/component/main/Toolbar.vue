@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app clipped-left  :flat="flat" v-scroll="onScroll">
+  <v-app-bar app clipped-left  :flat="flat" v-scroll="onScroll" >
     <v-app-bar-nav-icon @click="switchDrawer"></v-app-bar-nav-icon>
     <v-toolbar-title >Better OneTab 2024</v-toolbar-title>
     <v-spacer></v-spacer>

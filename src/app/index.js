@@ -29,10 +29,34 @@ Vue.config.devtools = true
 
 const app = new Vue({
   vuetify: new Vuetify({
-    // theme: {
-    //   dark: true,
-    //   primary: colors.lightGreen,
-    // },
+    theme: {
+      themes: {
+        light: {
+          primary: '#1976D2',
+          secondary: '#424242',
+          accent: '#82B1FF',
+          error: '#FF5252',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FFC107',
+          footer: '#FFFFFF',  // 自定义 light 主题的 v-footer 背景色
+        },
+        dark: {
+          primary: '#2196F3',
+          secondary: '#424242',
+          accent: '#FF4081',
+          error: '#FF5252',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FFC107',
+          footer: '#121212',  // 自定义 dark 主题的 v-footer 背景色
+        },
+      },
+      options: { customProperties: true }, // 允许使用 CSS 变量
+    },
+    options: {
+      customProperties: true,  // 开启 CSS 变量
+    },
   }),
   el: '#app',
   router,
