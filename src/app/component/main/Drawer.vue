@@ -1,7 +1,7 @@
 <template>
 <v-navigation-drawer
   class="app-drawer text-body-2"
-  v-model="value"
+  v-model="drawerValue"
   floating
   width="300px"
 >
@@ -105,6 +105,7 @@ export default {
     return {
       isFirefox: false,
       isLowFirefox: false,
+      drawerValue: true,
     }
   },
   computed: {

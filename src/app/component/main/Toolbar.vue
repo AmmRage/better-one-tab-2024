@@ -117,9 +117,8 @@
                                indeterminate
           ></v-progress-circular>
           <v-list v-if="!historyLoading" lines="two">
-            <template v-for="(item, index) in items" >
+            <template v-for="(item, index) in items" :key="item.title">
               <v-list-item
-                  :key="item.title"
                   ripple
                   @click="toggle(index)"
               >

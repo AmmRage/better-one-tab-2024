@@ -1,18 +1,17 @@
 <template>
 <v-app :style="{width: '360px'}" >
   <v-list density="compact" v-if="lists.length > 0">
-    <template v-for="(list, index) in lists">
+    <template v-for="(list, index) in lists" :key="index">
       <v-list-item
         ripple
         @click="clicked(index)"
-        :key="index"
         :color="list.color"
         class="list-item"
       >
-        
+
           <v-list-item-title><strong>[{{ list.tabs.length }}]</strong> {{ friendlyTitle(list) }}</v-list-item-title>
           <v-list-item-subtitle>{{ formatTime(list.time) }}</v-list-item-subtitle>
-        
+
         <v-list-item-action>
           <div class="text-right">
             <v-btn size="small" class="list-item-btn-hover" variant="text" icon title="store select tab into this list" @click.stop="storeInto(index)">
