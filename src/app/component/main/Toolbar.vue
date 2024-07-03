@@ -1,44 +1,56 @@
 <template>
   <v-app-bar app clipped-left  :flat="flat" v-scroll="onScroll">
-    <v-app-bar-nav-icon dark @click="switchDrawer"></v-app-bar-nav-icon>
-    <v-toolbar-title class="white--text">Better OneTab 2024</v-toolbar-title>
+    <v-app-bar-nav-icon @click="switchDrawer"></v-app-bar-nav-icon>
+    <v-toolbar-title >Better OneTab 2024</v-toolbar-title>
     <v-spacer></v-spacer>
     <search-form v-if="!opts.disableSearch"></search-form>
     <v-spacer></v-spacer>
 
-    <v-toolbar-title v-if="lastUpdate!==''" class="white--text">Last sync: {{ lastUpdate }}</v-toolbar-title>
+    <v-toolbar-title v-if="lastUpdate!==''" >Last sync: {{ lastUpdate }}</v-toolbar-title>
     <v-spacer></v-spacer>
+
+    <!-- display mode -->
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn icon @click="switchNightMode"
+               v-bind="attrs"
+               v-on="on"
+        >
+          <v-icon>{{ nightmode ? 'brightness_5' : 'brightness_4' }}</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ __('ui_nightmode') }}</span>
+    </v-tooltip>
 
     <!-- history -->
     <v-tooltip bottom>
-      <v-btn slot="activator" icon dark :disabled="!online" @click="showHistoryBtnClicked">
-        <transition name="fade" mode="out-in">
-          <span class="material-icons">history</span>
-        </transition>
-      </v-btn>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn icon :disabled="!online" @click="showHistoryBtnClicked"
+               v-bind="attrs"
+               v-on="on"
+        >
+          <transition name="fade" mode="out-in">
+            <span class="material-icons">history</span>
+          </transition>
+        </v-btn>
+      </template>
       <span>for debug / test purpose<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
-    </v-tooltip>
-
-    <!-- download -->
-    <v-tooltip v-if="hasToken" bottom>
-      <v-btn slot="activator" icon dark :disabled="!online" @click="loadBtnClicked">
-        <transition name="fade" mode="out-in">
-          <span class="material-icons">cloud_download</span>
-        </transition>
-      </v-btn>
-      <span>download tabs immediately from server<dynamic-time v-if="!tooltip"
-                                                               v-model="lastUpdated"></dynamic-time></span>
     </v-tooltip>
 
     <!-- login / sync icon -->
     <v-tooltip bottom>
-      <v-btn slot="activator" icon dark :loading="syncing" :disabled="!online" @click="syncBtnClicked">
-        <transition name="fade" mode="out-in">
-          <span v-if="!online" class="material-icons">cloud_off</span>
-          <span v-else-if="!hasToken" class="material-icons">login</span>
-          <span v-else class="material-icons">cloud_sync</span>
-        </transition>
-      </v-btn>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn icon :loading="syncing" :disabled="!online" @click="syncBtnClicked"
+               v-bind="attrs"
+               v-on="on"
+        >
+          <transition name="fade" mode="out-in">
+            <span v-if="!online" class="material-icons">cloud_off</span>
+            <span v-else-if="!hasToken" class="material-icons">login</span>
+            <span v-else class="material-icons">cloud_sync</span>
+          </transition>
+        </v-btn>
+      </template>
       <span v-if="!online">You are offline now!<dynamic-time v-if="!tooltip"
                                                              v-model="lastUpdated"></dynamic-time></span>
       <span v-else-if="!hasToken">Login here<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
@@ -46,29 +58,41 @@
                                                              v-model="lastUpdated"></dynamic-time></span>
     </v-tooltip>
 
-    <!-- display mode -->
-    <v-tooltip bottom>
-      <v-btn slot="activator" icon dark @click="switchNightMode">
-        <v-icon>{{ nightmode ? 'brightness_5' : 'brightness_4' }}</v-icon>
-      </v-btn>
-      <span>{{ __('ui_nightmode') }}</span>
+    <!-- download -->
+    <v-tooltip v-if="hasToken" bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn icon :disabled="!online" @click="loadBtnClicked"
+               v-bind="attrs"
+               v-on="on"
+        >
+          <transition name="fade" mode="out-in">
+            <span class="material-icons">cloud_download</span>
+          </transition>
+        </v-btn>
+      </template>
+      <span>download tabs immediately from server<dynamic-time v-if="!tooltip"
+                                                               v-model="lastUpdated"></dynamic-time></span>
     </v-tooltip>
 
     <!-- logout -->
     <v-tooltip v-if="this.hasToken" bottom>
-      <v-btn slot="activator" icon dark :disabled="!online" @click="logoutBtnClicked">
-        <transition name="fade" mode="out-in">
-          <span class="material-icons">logout</span>
-        </transition>
-      </v-btn>
-      <span>log out<dynamic-time v-if="!tooltip" v-model="lastUpdated"></dynamic-time></span>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn icon :disabled="!online"
+               v-bind="attrs"
+               v-on="on"
+               @click="logoutBtnClicked">
+          <transition name="fade" mode="out-in">
+            <span class="material-icons">logout</span>
+          </transition>
+        </v-btn>
+      </template>
+      <span>log out</span>
     </v-tooltip>
 
     <v-snackbar
         v-model="snackbar"
         :timeout="30000"
         top
-        dark
     >
       {{ this.snackbarMessage }}
       <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>
@@ -587,7 +611,7 @@ export default {
 }
 
 .slide-enter-active, .slide-leave-active {
-  transition: all ease-out .22s;
+  transition: all ease-out .4s;
 }
 
 .fade-enter-to, .fade-leave {

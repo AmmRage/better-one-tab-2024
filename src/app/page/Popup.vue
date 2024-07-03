@@ -1,5 +1,5 @@
 <template>
-<v-app :style="{width: '360px'}" :dark="nightmode">
+<v-app :style="{width: '360px'}" >
   <v-list dense v-if="lists.length > 0">
     <template v-for="(list, index) in lists">
       <v-list-item

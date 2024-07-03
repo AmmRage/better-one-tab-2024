@@ -1,5 +1,5 @@
 <template>
-<v-app :dark="nightmode" :class="{'no-transition': opts.disableTransition}">
+<v-app :class="{'no-transition': opts.disableTransition}">
   <drawer :value="drawer"></drawer>
   <toolbar></toolbar>
   <v-main>

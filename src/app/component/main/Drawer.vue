@@ -1,6 +1,6 @@
 <template>
 <v-navigation-drawer
-  class="app-drawer"
+  class="app-drawer text-body-2"
   v-model="value"
   fixed
   clipped
@@ -42,14 +42,7 @@
         {{ __('ui_options') }}
       </v-list-item-content>
     </v-list-item>
-    <v-list-item :to="'/app/about'">
-      <v-list-item-action>
-        <v-icon>info</v-icon>
-      </v-list-item-action>
-      <v-list-item-content>
-        {{ __('ui_about') }}
-      </v-list-item-content>
-    </v-list-item>
+
     <v-list-item :to="'/app/import-export'">
       <v-list-item-action>
         <v-icon>import_export</v-icon>
@@ -75,6 +68,15 @@
       </v-list-item-action>
       <v-list-item-content>
         {{ __('ui_create_issue') }}
+      </v-list-item-content>
+    </v-list-item>
+
+    <v-list-item :to="'/app/about'">
+      <v-list-item-action>
+        <v-icon>info</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        {{ __('ui_about') }}
       </v-list-item-content>
     </v-list-item>
 <!--    <v-list-item href="https://gitter.im/better-onetab/Lobby?utm_source=app">-->
@@ -140,10 +142,4 @@ export default {
 }
 </script>
 <style scoped>
-.theme--light.app-drawer {
-  background: #fafafa !important;
-}
-.theme--dark.app-drawer {
-  background: rgb(48, 48, 48) !important;
-}
 </style>

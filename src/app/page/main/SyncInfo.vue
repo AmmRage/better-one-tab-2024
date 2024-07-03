@@ -45,7 +45,7 @@
             v-model="snackbar"
             :timeout="3000"
             top
-            dark
+
         >
           {{ this.snackbarMessage}}
           <v-btn color="pink" text @click="this.snackbar = false">Close</v-btn>

@@ -221,10 +221,10 @@
     <context-menu v-model="showMenu" ref="contextMenu" @click="contextMenuClicked"></context-menu>
 
     <v-fab-transition>
-      <v-btn :key="1" v-if="scrollY > 100" color="pink" dark fab fixed bottom right @click="$vuetify.goTo(0)">
+      <v-btn :key="1" v-if="scrollY > 100" color="pink" fab fixed bottom right @click="$vuetify.goTo(0)">
         <v-icon>keyboard_arrow_up</v-icon>
       </v-btn>
-      <v-btn :key="2" v-else color="green" dark fab fixed bottom right title="fold all lists" @click="foldAll">
+      <v-btn :key="2" v-else color="green" fab fixed bottom right title="fold all lists" @click="foldAll">
         <v-icon>subject</v-icon>
       </v-btn>
     </v-fab-transition>
