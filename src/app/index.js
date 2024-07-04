@@ -54,17 +54,19 @@ logger.init({Vue})
 //   components: { App }
 // })
 
-const app = createApp()
-
+console.debug('create vue app')
+const app = createApp(App)
+console.debug('create vuetify')
 const vuetify = createVuetify({
-  el: '#app',
-  router,
-  store,
-  template: '<App/>',
-  components: { App }
+
 })
-app.use(VueClipboard)
+
+console.debug('install plugins')
 app.use(vuetify)
+  .use(router)
+  .use(VueClipboard)
+console.debug('mount')
+app.mount('#app')
 
 
 if (DEBUG) {

@@ -1,3 +1,5 @@
 import init from './init'
 
-init()
+init().then(r => {
+  console.log('init done')
+})
