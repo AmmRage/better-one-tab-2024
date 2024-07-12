@@ -3,7 +3,7 @@ const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { VueLoaderPlugin } = require('vue-loader')
+const {VueLoaderPlugin} = require('vue-loader')
 const path = require('path')
 
 const config = {
@@ -18,7 +18,7 @@ const config = {
     __DEV_CSP__: '',
     __EXT_NAME__: '__MSG_ext_name__',
     __CONTENT_SCRIPTS_MATCHES__: 'https://boss.cnwangjie.com/*',
-  }
+  },
 }
 
 const resolve = (...paths) => path.join(__dirname, ...paths)
@@ -33,7 +33,7 @@ module.exports = {
   },
   output: {
     path: resolve('dist'),
-    filename : '[name].js',
+    filename: '[name].js',
   },
   plugins: [
     new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn/),
@@ -55,10 +55,16 @@ module.exports = {
             })
           }
           return content
-        }
+        },
       },
-      { from: 'src/assets/icons', to: 'assets/icons' },
-      { from: 'src/_locales', to: '_locales' },
+      {
+        from: 'src/assets/icons',
+        to: 'assets/icons',
+      },
+      {
+        from: 'src/_locales',
+        to: '_locales',
+      },
     ]),
     new HtmlWebpackPlugin({
       filename: 'index.html',
@@ -83,8 +89,8 @@ module.exports = {
     alias: {
       vue: '@vue/compat',
       'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src')
-    }
+      '@': resolve('src'),
+    },
   },
   module: {
     rules: [
@@ -94,23 +100,23 @@ module.exports = {
         options: {
           compilerOptions: {
             compatConfig: {
-              MODE: 2
-            }
-          }
-        }
+              MODE: 3,
+            },
+          },
+        },
       },
       {
         test: /\.js$/,
         use: {
-          loader: 'babel-loader'
-        }
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.css$/,
         use: [
           'vue-style-loader',
-          'css-loader'
-        ]
+          'css-loader',
+        ],
       },
       {
         test: /\.s[ac]ss$/i,
@@ -129,14 +135,14 @@ module.exports = {
       },
       {
         test: /\.png$/,
-        use: 'url-loader?mimetype=image/png'
+        use: 'url-loader?mimetype=image/png',
       },
       {
         test: /\.md$/,
         use: [
-          { loader: "html-loader" },
-          { loader: "markdown-loader" },
-        ]
+          {loader: 'html-loader'},
+          {loader: 'markdown-loader'},
+        ],
       },
       {
         test: /\.mjs$/,
@@ -145,11 +151,11 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env']
-          }
-        }
-      }
-    ]
-  }
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
+    ],
+  },
 }
 

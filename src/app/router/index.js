@@ -1,6 +1,8 @@
 import Vue from 'vue'
-import {createMemoryHistory, createRouter, createWebHistory} from 'vue-router'
-import Main from '../page/Main.vue'
+import {createMemoryHistory, createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
+
+// const Main = () => import(/* webpackChunkName: "main" */ '@/app/page/Main')
+import ExtensionMain from '../page/ExtensionMain.vue'
 const Popup = () => import(/* webpackChunkName: "popup" */ '@/app/page/Popup')
 const SyncInfo = () => import(/* webpackChunkName: "main" */ '@/app/page/main/SyncInfo')
 const Options = () => import(/* webpackChunkName: "main" */ '@/app/page/main/Options')
@@ -15,54 +17,47 @@ const routes = [
     component: Popup,
     name: 'popup',
   },
-  {
-    path: '/:pathMatch(.*)*',
-    component: Main,
-    name: 'all',
-  },
+  // {
+  //   path: '/:pathMatch(.*)*',
+  //   component: Main,
+  //   name: 'all',
+  // },
   {
     path: '/app',
-    component: Main,
+    component:  ExtensionMain,
+    name: 'ExtensionMain',
     children: [
       {
         path: 'options/sync',
         component: SyncInfo,
-        name: 'syncInfo',
       },
       {
         path: 'options',
         component: Options,
-        name: 'options',
       },
       {
         path: 'about',
         component: About,
-        name: 'about',
       },
       {
         path: 'import-export',
         component: ImportExport,
-        name: 'import-export',
       },
       {
         path: 'search',
         component: Search,
-        name: 'search',
       },
       {
         path: 'list',
         component: DetailList,
-        name: 'detailList',
       },
       {
         path: 'list/pinned',
         component: DetailList,
-        name: 'pinnedList',
       },
       {
         path: 'list/tag/:tag',
         component: DetailList,
-        name: 'taggedList'
       },
       {
         path: '*',
@@ -73,23 +68,24 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+  history: createWebHashHistory(),
+  routes: routes
 })
 
 
-if (PRODUCTION) {
- import(
-   /* webpackChunkName: "tracker", webpackMode: "lazy" */
-   '@/common/tracker'
- ).then(({tracker}) => {
-   tracker()
-   router.beforeEach((to, from, next) => {
-     ga('set', 'page', to.name)
-     ga('send', 'pageview')
-     next()
-   })
- })
-}
+// if (PRODUCTION) {
+//   console.log('PRODUCTION')
+//  import(
+//    /* webpackChunkName: "tracker", webpackMode: "lazy" */
+//    '@/common/tracker'
+//  ).then(({tracker}) => {
+//    tracker()
+//    router.beforeEach((to, from, next) => {
+//      ga('set', 'page', to.name)
+//      ga('send', 'pageview')
+//      next()
+//    })
+//  })
+// }
 
 export default router

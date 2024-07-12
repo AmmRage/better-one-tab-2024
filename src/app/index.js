@@ -9,64 +9,22 @@ import 'vuetify/dist/vuetify.min.css'
 import {createApp} from '@vue/compat'
 import {createVuetify} from 'vuetify'
 
-logger.init({Vue})
-// Vue.use(VueClipboard)
-// Vue.use(Vuetify)
-//
-// Vue.config.productionTip = false
-// Vue.config.devtools = true
-//
-// const app = new Vue({
-//   vuetify: new Vuetify({
-//     theme: {
-//       themes: {
-//         light: {
-//           primary: '#1976D2',
-//           secondary: '#424242',
-//           accent: '#82B1FF',
-//           error: '#FF5252',
-//           info: '#2196F3',
-//           success: '#4CAF50',
-//           warning: '#FFC107',
-//           footer: '#FFFFFF',  // 自定义 light 主题的 v-footer 背景色
-//         },
-//         dark: {
-//           primary: '#2196F3',
-//           secondary: '#424242',
-//           accent: '#FF4081',
-//           error: '#FF5252',
-//           info: '#2196F3',
-//           success: '#4CAF50',
-//           warning: '#FFC107',
-//           footer: '#121212',  // 自定义 dark 主题的 v-footer 背景色
-//         },
-//       },
-//       options: { customProperties: true }, // 允许使用 CSS 变量
-//     },
-//     options: {
-//       customProperties: true,  // 开启 CSS 变量
-//     },
-//   }),
-//   el: '#app',
-//   router,
-//   store,
-//   template: '<App/>',
-//   components: { App }
-// })
+// logger.init({Vue})
 
 console.debug('create vue app')
 const app = createApp(App)
+
 console.debug('create vuetify')
-const vuetify = createVuetify({
+const vuetify = createVuetify()
 
-})
-
-console.debug('install plugins')
-app.use(vuetify)
+console.debug('install views')
+app
   .use(router)
-  .use(VueClipboard)
+  .use(vuetify)
+  // .use(VueClipboard)
+
 console.debug('mount')
-app.mount('#app')
+app.mount('#root')
 
 
 if (DEBUG) {
