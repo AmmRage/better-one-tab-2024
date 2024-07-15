@@ -1,10 +1,12 @@
+import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 import {genObjectId} from './utils'
 import {normalizeTab} from './tab'
 import {PICKED_LIST_RPOPS} from './constants'
 
-export const createNewTabList = ({_id, tabs, title, tags, time, pinned, expand, color, updatedAt}) => ({
+export const createNewTabList = ({_id, uuid, tabs, title, tags, time, pinned, expand, color, updatedAt}) => ({
   _id: _id || genObjectId(),
+  uuid: uuid || uuidv4(),
   tabs: Array.isArray(tabs) ? tabs.map(normalizeTab) : [],
   title: title || '',
   tags: tags || [],

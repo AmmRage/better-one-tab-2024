@@ -12,8 +12,11 @@ import {
   REMOVE_LIST_BY_ID,
   CHANGE_LIST_ORDER,
 } from '@/common/constants'
+import browser from 'webextension-polyfill'
 
 listManager.init()
+
+//another Vuex store module
 
 export default {
   state: {
@@ -24,6 +27,8 @@ export default {
     indexedLists(state) {
       return state.lists.map((list, index) => Object.assign({}, list, {index}))
     },
+
+    // get tab lists by with page parameter
     inPageLists(state) {
       return (page, lists) => lists.slice(
         (page - 1) * state.opts.listsPerPage,
@@ -48,7 +53,9 @@ export default {
         }
       })
       const sorted = {}
-      Object.keys(tags).sort().forEach(k => { sorted[k] = tags[k] })
+      Object.keys(tags).sort().forEach(k => {
+        sorted[k] = tags[k]
+      })
       return sorted
     },
     pinnedList(state, getters) {
@@ -112,16 +119,28 @@ export default {
     },
   },
   actions: {
-    preloadLists({dispatch, commit, state}) {
+    preloadLists({
+      dispatch,
+      commit,
+      state,
+    }) {
       if (state.loaded) return
       commit('loaded')
       return dispatch('getLists')
     },
     async getLists({commit}) {
+      browser.storage.local.get('lists').then(items => {
+        // console.log('lists is:', items)
+      })
       const lists = await storage.getLists()
-      if (lists) commit('setLists', lists)
+      // console.debug('getLists', lists)
+      if (lists)
+        commit('setLists', lists)
     },
-    itemClicked({dispatch, state}, [listIndex, tabIndex]) {
+    itemClicked({
+      dispatch,
+      state,
+    }, [listIndex, tabIndex]) {
       const action = state.opts.itemClickAction
       if (action === 'open-and-remove') {
         setTimeout(() => {
@@ -129,39 +148,66 @@ export default {
         }, 0)
       }
     },
-    removeList({commit, state}, listIndex) {
+    removeList({
+      commit,
+      state,
+    }, listIndex) {
       const list = state.lists[listIndex]
       if ((list.tabs.length !== 0) && state.opts.alertRemoveList && !confirm(`${__('ui_remove_list')}:
         [${list.tabs.length}] ${list.title || __('ui_untitled')}
-        ${__('ui_created')} ${formatTime(list.time)}`)) return
+        ${__('ui_created')} ${formatTime(list.time)}`)) {
+        return
+      }
       commit(REMOVE_LIST_BY_ID, [list._id])
     },
-    removeTab({commit, state, dispatch}, [listIndex, tabIndex]) {
+    removeTab({
+      commit,
+      state,
+      dispatch,
+    }, [listIndex, tabIndex]) {
       const list = state.lists[listIndex]
       const tabs = list.tabs.slice()
       tabs.splice(tabIndex, 1)
-      if (tabs.length === 0) dispatch('removeList', listIndex)
-      else commit(UPDATE_LIST_BY_ID, [list._id, {tabs}])
+      if (tabs.length === 0) {
+        dispatch('removeList', listIndex)
+      } else {
+        commit(UPDATE_LIST_BY_ID, [list._id, {tabs}])
+      }
     },
-    restoreList({state, dispatch}, [listIndex, inNewWindow = false]) {
+    restoreList({
+      state,
+      dispatch,
+    }, [listIndex, inNewWindow = false]) {
       const list = state.lists[listIndex]
-      if (inNewWindow) tabManager.restoreListInNewWindow(list)
-      else tabManager.restoreList(list)
+      if (inNewWindow) {
+        tabManager.restoreListInNewWindow(list)
+      } else {
+        tabManager.restoreList(list)
+      }
       if (list.pinned) return
       dispatch('removeList', listIndex)
     },
-    saveTitle({commit, state}, listIndex) {
+    saveTitle({
+      commit,
+      state,
+    }, listIndex) {
       const list = state.lists[listIndex]
       if (!list.titleEditing) return
       commit('closeChangeTitle', listIndex)
       commit(UPDATE_LIST_BY_ID, [list._id, _.pick(list, 'title')])
     },
-    pinList({commit, state}, [listIndex, pinned = true]) {
+    pinList({
+      commit,
+      state,
+    }, [listIndex, pinned = true]) {
       const list = state.lists[listIndex]
       commit('setPinned', [listIndex, pinned])
       commit(UPDATE_LIST_BY_ID, [list._id, {pinned}])
     },
-    swapListItem({commit, state}, [a, b]) {
+    swapListItem({
+      commit,
+      state,
+    }, [a, b]) {
       const list = state.lists[a]
       commit(CHANGE_LIST_ORDER, [list._id, b - a])
     },
@@ -169,34 +215,51 @@ export default {
       if (listIndex === 0) return
       dispatch('swapListItem', [listIndex, listIndex - 1])
     },
-    moveListDown({dispatch, state}, listIndex) {
+    moveListDown({
+      dispatch,
+      state,
+    }, listIndex) {
       if (listIndex === state.lists.length - 1) return
       dispatch('swapListItem', [listIndex, listIndex + 1])
     },
-    expandList({commit, state}, [expand, listIndex]) {
+    expandList({
+      commit,
+      state,
+    }, [expand, listIndex]) {
       const list = state.lists[listIndex]
       if (list.expand === expand) return
       commit('setExpand', [listIndex, expand])
       commit(UPDATE_LIST_BY_ID, [list._id, {expand}])
     },
-    changeColor({commit, state}, [listIndex, color]) {
+    changeColor({
+      commit,
+      state,
+    }, [listIndex, color]) {
       const list = state.lists[listIndex]
       commit('setColor', [listIndex, color])
       commit(UPDATE_LIST_BY_ID, [list._id, {color}])
     },
-    tabMoved({commit, state}, changedLists) {
+    tabMoved({
+      commit,
+      state,
+    }, changedLists) {
       // judge last list firstly in order to avoid list index changed
       _.uniq(changedLists).sort((a, b) => b - a).forEach(listIndex => {
         const list = state.lists[listIndex]
-        if (list.tabs.length === 0) commit(REMOVE_LIST_BY_ID, [list._id])
-        else commit(UPDATE_LIST_BY_ID, [list._id, _.pick(list, 'tabs')])
+        if (list.tabs.length === 0) {
+          commit(REMOVE_LIST_BY_ID, [list._id])
+        } else {
+          commit(UPDATE_LIST_BY_ID, [list._id, _.pick(list, 'tabs')])
+        }
       })
     },
-    setTags({commit, state}, [listIndex, tags]) {
+    setTags({
+      commit,
+      state,
+    }, [listIndex, tags]) {
       const list = state.lists[listIndex]
       commit('setTags', [listIndex, tags])
       commit(UPDATE_LIST_BY_ID, [list._id, {tags}])
     },
   },
-
 }

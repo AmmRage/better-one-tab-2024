@@ -1,19 +1,18 @@
 <template>
-<v-text-field
-  solo-inverted
-  dark
-  flat
-  clearable
-  hide-details
-  label=" Search"
-  prepend-inner-icon="search"
-  @focus="onFocus"
-  @click:clear="onClear"
-  @keydown.enter="search"
-  v-model="value"
-  ref="searchForm"
->
-</v-text-field>
+  <v-text-field
+      solo-inverted
+      flat
+      clearable
+      hide-details
+      label=" Search"
+      prepend-inner-icon="search"
+      @focus="onFocus"
+      @click:clear="onClear"
+      @keydown.enter="search"
+      v-model="value"
+      ref="searchForm"
+  >
+  </v-text-field>
 </template>
 <script>
 
@@ -44,9 +43,12 @@ export default {
       if (this.$route.name === 'search') this.$router.go(-1)
     },
     search() {
-      this.$router.replace({name: 'search', query: {q: encodeURIComponent(this.value)}})
+      this.$router.replace({
+        name: 'search',
+        query: {q: encodeURIComponent(this.value)},
+      })
     },
-  }
+  },
 }
 </script>
 

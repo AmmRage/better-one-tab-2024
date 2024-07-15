@@ -1,8 +1,8 @@
 <template>
 <v-card>
   <v-tabs
-    color="cyan"
-    dark
+      background-color="cyan"
+
     grow
     slider-color="yellow"
   >
@@ -16,7 +16,7 @@
           <input ref="fileSelector" type="file" hidden @change="impFile"></input>
           <v-btn :loading="processing" @click="$refs.fileSelector.click()">
             {{ __('ui_import_from_file') }}
-            <v-icon dark right>attach_file</v-icon>
+            <v-icon right>attach_file</v-icon>
           </v-btn>
           <v-textarea
             autofocus
@@ -53,7 +53,7 @@
 
 
   <v-fab-transition>
-    <v-btn v-if="scrollY > 100" color="pink" dark fab fixed bottom right @click="$vuetify.goTo(0)">
+    <v-btn v-if="scrollY > 100" color="pink" fab fixed bottom right @click="$vuetify.goTo(0)">
       <v-icon>keyboard_arrow_up</v-icon>
     </v-btn>
   </v-fab-transition>

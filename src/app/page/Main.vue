@@ -1,18 +1,18 @@
 <template>
-<v-app :dark="nightmode" :class="{'no-transition': opts.disableTransition}">
+<v-app :class="{'no-transition': opts.disableTransition}">
   <drawer :value="drawer"></drawer>
   <toolbar></toolbar>
-  <v-content>
+  <v-main>
     <v-container>
       <keep-alive>
         <router-view></router-view>
       </keep-alive>
     </v-container>
-  </v-content>
-  <v-footer>
+  </v-main>
+  <v-footer app :style="footerStyle">
     <v-spacer></v-spacer>
     <span>
-      Made with <i class="fa fa-heart throb" style="color:#d43f57"></i> by <a style="color:black; text-decoration: none;" href="https://www.cnwangjie.com/" target="_blank">WangJie</a>
+      Made with <i class="fa fa-heart throb" style="color:#d43f57"></i> by <a style="text-decoration: none;" href="https://www.cnwangjie.com/" target="_blank">WangJie</a>
     </span>
     <v-spacer></v-spacer>
   </v-footer>
@@ -43,6 +43,13 @@ export default {
   },
   computed: {
     ...mapState(['drawer', 'nightmode', 'opts']),
+    footerStyle() {
+      const isDark = this.$vuetify.theme.dark;
+      const color = isDark ? this.$vuetify.theme.themes.dark.footer : this.$vuetify.theme.themes.light.footer;
+      return {
+        backgroundColor: color,
+      };
+    },
   },
   created() {
     this.init()
@@ -63,4 +70,5 @@ export default {
 .no-transition * {
   transition: none !important;
 }
+
 </style>

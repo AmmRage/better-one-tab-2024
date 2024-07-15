@@ -1,265 +1,295 @@
 <template>
-<div>
+  <div>
 
-<div class="text-xs-center" v-if="pageLength > 1">
-  <v-pagination
-    :value="currentPage"
-    @input="changePage"
-    :length="pageLength"
-    circle
-  ></v-pagination>
-</div>
+    <div class="text-xs-center" v-if="pageLength > 1">
+      <v-pagination
+          :value="currentPage"
+          @input="changePage"
+          :length="pageLength"
+          circle
+      ></v-pagination>
+    </div>
 
-<v-expansion-panel
-  ref="panel" expand popout
-  :readonly="opts.disableExpansion"
-  :value="expandStatus"
-  @input="expandStatusChanged"
-  class="my-3"
->
-  <v-expansion-panel-content
-    v-for="list in listsInView"
-    hide-actions
-    class="tab-list"
-    :key="list.index"
-    ref="list"
-  >
-    <v-layout slot="header" row spacer>
-      <v-flex no-wrap xs10>
+    <v-expansion-panels
+        ref="panel"
+        v-model="panel"
+        multiple
+        popout
+        :readonly="opts.disableExpansion"
+        :value="expandStatus"
+        @input="expandStatusChanged"
+        class="my-3"
+    >
+      <v-expansion-panel
+          v-for="tabList in listsInView"
+          hide-default-footer
+          class="tab-list"
+          :key="tabList.index"
+          ref="list"
+          @change="onTabListExpandChange(tabList)"
+      >
+        <v-expansion-panel-header>
+          <v-flex no-wrap xs10>
+            <v-menu open-on-hover top offset-y>
+              <template v-slot:activator="{ on, attrs }">
+                <v-chip
+                    label
+                    small
+                    :color="tabList.color"
+                    class="lighten-3"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click.prevent.stop
+                >{{ tabList.tabs.length }} {{ __('ui_tab') }}
+                </v-chip>
+              </template>
+              <v-card>
+                <v-layout wrap class="color-panel">
+                  <v-flex wrap xs3 v-for="(color, colorIndex) in colorList" :key="colorIndex">
+                    <div
+                        class="color-selector lighten-3"
+                        :class="color"
+                        @click.stop="changeColor([tabList.index, color])"
+                    ></div>
+                  </v-flex>
+                </v-layout>
+              </v-card>
+            </v-menu>
+            <!-- created at  -->
+            <strong class="grey--text date">{{ __('ui_created') }}
+              <dynamic-time v-model="tabList.time"></dynamic-time>
+            </strong>
 
-        <v-menu open-on-hover top offset-y>
-          <v-chip
-            slot="activator"
-            label
-            small
-            :color="list.color"
-            class="lighten-3"
-          >{{ list.tabs.length }} {{ __('ui_tab') }}</v-chip>
+            <v-chip v-for="tag in tabList.tags" :color="getColorByHash(tag)" class="lighten-3" :key="tag"
+                    label small>
+              {{ tag }}
+            </v-chip>
+
+            <!-- title -->
+            <v-text-field
+                @keydown.enter="saveTitle(tabList.index)"
+                @blur="saveTitle(tabList.index)"
+                class="title-editor"
+                autofocus
+                v-if="tabList.titleEditing"
+                @click.prevent.stop
+                :value="tabList.title"
+                @input="setTitle([tabList.index, $event])"
+                single-line
+                hide-details
+            ></v-text-field>
+            <div
+                class="list-title"
+                v-else
+                :class="[
+            'font-size-24px', // + opts.titleFontSize
+            tabList.color ? tabList.color + '--text' : '',
+          ]"
+            >{{ tabList.title }}
+            </div>
+          </v-flex>
+          <v-flex xs2 class="text-xs-right">
+            <v-btn
+                :title="__('ui_title_down_btn')"
+                @click.stop="moveListDown(tabList.index)"
+                text icon class="icon-in-title"
+                v-if="$route.name === 'detailList'"
+                :disabled="tabList.index === lists.length - 1"
+            >
+              <v-icon color="gray" :style="{fontSize: '14px'}">fas fa-arrow-down</v-icon>
+            </v-btn>
+            <v-btn
+                :title="__('ui_title_up_btn')"
+                @click.stop="moveListUp(tabList.index)"
+                text icon class="icon-in-title"
+                v-if="$route.name === 'detailList'"
+                :disabled="tabList.index === 0"
+            >
+              <v-icon color="gray" :style="{fontSize: '14px'}">fas fa-arrow-up</v-icon>
+            </v-btn>
+            <v-btn
+                :title="__('ui_title_pin_btn')"
+                @click.stop="pinList([tabList.index, !tabList.pinned])"
+                text icon class="icon-in-title"
+            >
+              <v-icon :color="tabList.pinned ? 'blue' : 'gray'" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
+            </v-btn>
+          </v-flex>
+        </v-expansion-panel-header>
+
+        <v-expansion-panel-content>
           <v-card>
-            <v-layout wrap class="color-panel">
-              <v-flex wrap xs3 v-for="(color, colorIndex) in colorList" :key="colorIndex">
-                <div
-                  class="color-selector lighten-3"
-                  :class="color"
-                  @click.stop="changeColor([list.index, color])"
-                ></div>
+            <v-layout>
+              <v-flex class="checkbox-column">
+                <!-- check box select all -->
+                <v-checkbox
+                    hide-details
+                    class="checkbox ml-5"
+                    :value="tabList.tabs.some(tab => tab.selected)"
+                    :indeterminate="tabList.tabs.some(tab => tab.selected) && tabList.tabs.some(tab => !tab.selected)"
+                    @change="selectAllBtnClicked(tabList.index)"
+                ></v-checkbox>
+              </v-flex>
+              <v-flex class="ml-1">
+                <v-btn
+                    :ref="'multi-op-' + tabList.index"
+                    text small v-on:click="multiOpBtnClicked(tabList.index, $event)"
+                    icon :disabled="tabList.tabs.every(tab => !tab.selected)"
+                >
+                  <v-icon>more_vert</v-icon>
+                </v-btn>
+                <v-btn text small v-on:click="changeTabListTitleBtnClicked(tabList.index)">{{ __('ui_retitle_list') }}</v-btn>
+                <v-btn text small v-on:click="restoreList([tabList.index])">{{ __('ui_restore_all') }}</v-btn>
+                <v-btn text small v-on:click="restoreList([tabList.index, true])">{{
+                    __('ui_restore_all_in_new_window')
+                  }}
+                </v-btn>
+                <v-btn text small color="error" v-on:click="removeList(tabList.index)" :disabled="tabList.pinned">
+                  {{ __('ui_remove_list') }}
+                </v-btn>
+                <v-btn text small v-on:click="pinList([tabList.index, !tabList.pinned])">
+                  {{ tabList.pinned ? __('ui_unpin') : __('ui_pin') }} {{ __('ui_list') }}
+                </v-btn>
+                <v-btn text small v-on:click="editTag(tabList.index, $event)" :ref="'edit-tag-' + tabList.index">EDIT TAG
+                </v-btn>
               </v-flex>
             </v-layout>
-          </v-card>
-        </v-menu>
-        <strong class="grey--text date">{{ __('ui_created') }} <dynamic-time v-model="list.time"></dynamic-time></strong>
-        <v-chip v-for="tag in list.tags" :color="getColorByHash(tag)" class="lighten-3" :key="tag" label small>
-          {{ tag }}
-        </v-chip>
-        <v-text-field
-          @keydown.enter="saveTitle(list.index)"
-          @blur="saveTitle(list.index)"
-          class="title-editor"
-          autofocus
-          v-if="list.titleEditing"
-          full-width
-          @click.prevent.stop
-          :value="list.title"
-          @input="setTitle([list.index, $event])"
-          single-line
-          hide-details
-          :class="'font-size-' + opts.titleFontSize"
-        ></v-text-field>
-        <div
-          class="list-title"
-          v-else
-          :class="[
-            'font-size-' + opts.titleFontSize,
-            list.color ? list.color + '--text' : '',
-          ]"
-        >{{ list.title }}</div>
-      </v-flex>
-      <v-flex xs2 class="text-xs-right">
-        <v-btn
-          :title="__('ui_title_down_btn')"
-          @click.stop="moveListDown(list.index)"
-          flat icon class="icon-in-title"
-          v-if="$route.name === 'detailList'"
-          :disabled="list.index === lists.length - 1"
-        >
-          <v-icon color="gray" :style="{fontSize: '14px'}">fas fa-arrow-down</v-icon>
-        </v-btn>
-        <v-btn
-          :title="__('ui_title_up_btn')"
-          @click.stop="moveListUp(list.index)"
-          flat icon class="icon-in-title"
-          v-if="$route.name === 'detailList'"
-          :disabled="list.index === 0"
-        >
-          <v-icon color="gray" :style="{fontSize: '14px'}">fas fa-arrow-up</v-icon>
-        </v-btn>
-        <v-btn
-          :title="__('ui_title_pin_btn')"
-          @click.stop="pinList([list.index, !list.pinned])"
-          flat icon class="icon-in-title"
-        >
-          <v-icon :color="list.pinned ? 'blue' : 'gray'" :style="{fontSize: '14px'}">fas fa-thumbtack</v-icon>
-        </v-btn>
-      </v-flex>
-    </v-layout>
-    <v-card>
-      <v-layout>
-        <v-flex class="checkbox-column">
-          <v-checkbox
-            hide-details
-            class="checkbox"
-            :value="list.tabs.some(tab => tab.selected)"
-            @click.self.stop="selectAllBtnClicked(list.index)"
-            :indeterminate="list.tabs.some(tab => tab.selected) && list.tabs.some(tab => !tab.selected)"
-          ></v-checkbox>
-        </v-flex>
-        <v-flex>
-          <v-btn
-            :ref="'multi-op-' + list.index"
-            flat small v-on:click="multiOpBtnClicked(list.index, $event)"
-            icon :disabled="list.tabs.every(tab => !tab.selected)"
-          >
-            <v-icon>more_vert</v-icon>
-          </v-btn>
-          <v-btn flat small v-on:click="openChangeTitle(list.index)">{{ __('ui_retitle_list') }}</v-btn>
-          <v-btn flat small v-on:click="restoreList([list.index])">{{ __('ui_restore_all') }}</v-btn>
-          <v-btn flat small v-on:click="restoreList([list.index, true])">{{ __('ui_restore_all_in_new_window') }}</v-btn>
-          <v-btn flat small color="error" v-on:click="removeList(list.index)" :disabled="list.pinned">{{ __('ui_remove_list') }}</v-btn>
-          <v-btn flat small v-on:click="pinList([list.index, !list.pinned])">{{ list.pinned ? __('ui_unpin') : __('ui_pin') }} {{ __('ui_list') }}</v-btn>
-          <v-btn flat small v-on:click="editTag(list.index, $event)" :ref="'edit-tag-' + list.index">EDIT TAG</v-btn>
-        </v-flex>
-      </v-layout>
-      <v-divider></v-divider>
-      <v-list dense class="my-1">
-        <draggable
-          :value="list.tabs"
-          @input="setTabs([list.index, $event])"
-          :options="draggableOptions"
-          @change="tabMoved([list.index])"
-        >
-          <v-list-tile
-            v-for="(tab, tabIndex) in list.tabs"
-            :href="opts.itemClickAction !== 'none' ? tab.url : null"
-            :target="opts.itemClickAction !== 'none' ? '_blank' : null"
-            @click.stop="itemClicked([list.index, tabIndex])"
-            @contextmenu="rightClicked(list.index, tabIndex, $event)"
-            class="list-item"
-            :ref="'list-' + list.index + '-tab'"
-            :key="tabIndex"
-            v-if="tabIndex < 10 || list.showAll"
-          >
-            <div class="drag-indicator" @click.stop.prevent><i></i></div>
-            <v-list-tile-action>
-              <v-checkbox
-                hide-details
-                class="checkbox"
-                :value="tab.selected"
-                @click.prevent.stop.self="tabSelected([list.index, tabIndex, !tab.selected])"
-              ></v-checkbox>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>
-                <v-avatar
-                  tile
-                  size="16"
-                  color="grey lighten-4"
-                  v-if="!opts.hideFavicon"
+            <v-divider></v-divider>
+            <v-list dense class="my-1">
+              <draggable
+                  :value="tabList.tabs"
+                  @input="setTabs([tabList.index, $event])"
+                  v-bind="draggableOptions"
+                  @change="tabMoved([tabList.index])"
+              >
+                <v-list-item
+                    v-for="(tab, tabIndex) in tabList.tabs"
+                    :href="opts.itemClickAction !== 'none' ? tab.url : null"
+                    :target="opts.itemClickAction !== 'none' ? '_blank' : null"
+                    @click.stop="itemClicked([tabList.index, tabIndex])"
+                    @contextmenu="rightClicked(tabList.index, tabIndex, $event)"
+                    class="list-item"
+                    :ref="'list-' + tabList.index + '-tab'"
+                    :key="tabIndex"
+                    v-if="tabIndex < 10 || tabList.showAll"
                 >
-                  <img :src="tab.favIconUrl ? tab.favIconUrl : `https://www.google.com/s2/favicons?domain=${getDomain(tab.url)}`">
-                </v-avatar>
-                {{ opts.itemDisplay === 'url' ? tab.url : tab.title }}
-              </v-list-tile-title>
-              <v-list-tile-sub-title v-if="opts.itemDisplay === 'title-and-url'">
-                {{ tab.url }}
-              </v-list-tile-sub-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-layout v-if="list.tabs.length > 10 && !list.showAll">
-            <v-flex class="text-xs-center">
-              <v-btn small flat @click="showAll(list.index)"><v-icon>more_horiz</v-icon></v-btn>
-            </v-flex>
-          </v-layout>
-        </draggable>
-      </v-list>
-    </v-card>
-  </v-expansion-panel-content>
-</v-expansion-panel>
+                  <!-- per url/tab checkbox -->
+                  <v-list-item-action>
+                  </v-list-item-action>
 
-<div class="text-xs-center" v-if="pageLength > 1">
-  <v-pagination
-    :value="currentPage"
-    @input="changePage"
-    :length="pageLength"
-    circle
-  ></v-pagination>
-</div>
+                  <v-checkbox
+                      hide-details
+                      class="checkbox"
+                      :value="tab.selected"
+                      @click.prevent.stop.self="tabSelected([tabList.index, tabIndex, !tab.selected])"
+                      @change="singleTabChecked(tabList.index, tabIndex, !tab.selected)"
+                  ></v-checkbox>
 
-<v-layout v-if="processed && listsToDisplay.length === 0" align-center justify-center column fill-height class="no-list-tip">
-  <h3 class="display-3 grey--text" v-text="__('ui_no_list')"></h3>
-  <p class="display-2 grey--text text--lighten-1" v-html="__('ui_no_list_tip')"></p>
-</v-layout>
+                  <div class="drag-indicator" @click.stop.prevent><i></i></div>
 
-<context-menu v-model="showMenu" ref="contextMenu" @click="contextMenuClicked"></context-menu>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      <v-avatar
+                          tile
+                          size="16"
+                          color="grey lighten-4"
+                          v-if="!opts.hideFavicon"
+                      >
+                        <img
+                            :src="tab.favIconUrl ? tab.favIconUrl : `https://www.google.com/s2/favicons?domain=${getDomain(tab.url)}`">
+                      </v-avatar>
+                      {{ opts.itemDisplay === 'url' ? tab.url : tab.title }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle v-if="opts.itemDisplay === 'title-and-url'">
+                      {{ tab.url }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-layout v-if="tabList.tabs.length > 10 && !tabList.showAll">
+                  <v-flex class="text-xs-center">
+                    <v-btn small text @click="showAll(tabList.index)">
+                      <v-icon>more_horiz</v-icon>
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
+              </draggable>
+            </v-list>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
-<v-fab-transition>
-  <v-btn :key="1" v-if="scrollY > 100" color="pink" dark fab fixed bottom right @click="$vuetify.goTo(0)">
-    <v-icon>keyboard_arrow_up</v-icon>
-  </v-btn>
-  <v-btn :key="2" v-else color="green" dark fab fixed bottom right title="fold all lists" @click="foldAll">
-    <v-icon>subject</v-icon>
-  </v-btn>
-</v-fab-transition>
+    <div class="text-xs-center" v-if="pageLength > 1">
+      <v-pagination
+          :value="currentPage"
+          @input="changePage"
+          :length="pageLength"
+          circle
+      ></v-pagination>
+    </div>
 
-<v-menu
-  v-model="tag.editing"
-  :close-on-content-click="false"
-  :position-x="tag.x"
-  :position-y="tag.y"
-  absolute
-  offset-y
->
-  <v-combobox
-    autofocus
-    v-model="tag.value"
-    @input="tagChanged"
-    :hide-no-data="!tag.input"
-    :items="Object.keys(taggedList)"
-    :search-input.sync="tag.input"
-    label="Search an existing tag"
-    multiple
-    small-chips
-    solo
-    hide-details
-    dense
-  >
-    <template slot="no-data">
-      <v-list-tile>
-        <span class="subheading">Create</span>
-        <v-chip label small>
-          {{ tag.input }}
-        </v-chip>
-      </v-list-tile>
-    </template>
+    <v-layout v-if="processed && listsToDisplay.length === 0" align-center justify-center column fill-height
+              class="no-list-tip">
+      <h3 class="display-3 grey--text" v-text="__('ui_no_list')"></h3>
+      <p class="display-2 grey--text text--lighten-1" v-html="__('ui_no_list_tip')"></p>
+    </v-layout>
 
-    <template slot="selection" slot-scope="{ item, parent, selected }">
-      <v-chip :selected="selected" :color="getColorByHash(item)" class="lighten-3" label small>
-        <span class="pr-2">{{ item }}</span>
-        <v-icon small @click="parent.selectItem(item)">close</v-icon>
-      </v-chip>
-    </template>
+    <context-menu v-model="showMenu" ref="contextMenu" @click="contextMenuClicked"></context-menu>
 
-    <!-- <template
-      slot="item"
-      slot-scope="{ index, item, parent }"
+    <v-fab-transition>
+      <v-btn :key="1" v-if="scrollY > 100" color="pink" fab fixed bottom right @click="$vuetify.goTo(0)">
+        <v-icon>keyboard_arrow_up</v-icon>
+      </v-btn>
+      <v-btn :key="2" v-else color="green" fab fixed bottom right title="fold all lists" @click="collapseAll">
+<!--        <v-icon v-if="panel.length > 0">unfold_less_double</v-icon>-->
+<!--        <v-icon v-if="panel.length = 0">unfold_more_double</v-icon>-->
+
+            <v-icon>unfold_less_double</v-icon>
+      </v-btn>
+    </v-fab-transition>
+
+    <v-menu
+        v-model="tag.editing"
+        :close-on-content-click="false"
+        :position-x="tag.x"
+        :position-y="tag.y"
+        absolute
+        offset-y
     >
-      <v-list-tile-content>
-        <v-chip dark label small>{{ item }}</v-chip>
-      </v-list-tile-content>
-    </template> -->
-  </v-combobox>
-</v-menu>
+      <v-combobox
+          autofocus
+          v-model="tag.value"
+          @input="tagChanged"
+          :hide-no-data="!tag.input"
+          :items="Object.keys(taggedList)"
+          :search-input.sync="tag.input"
+          label="Search an existing tag"
+          multiple
+          small-chips
+          solo
+          hide-details
+          dense
+      >
+        <template slot="no-data">
+          <v-list-item>
+            <span class="subtitle-1">Create</span>
+            <v-chip label small>
+              {{ tag.input }}
+            </v-chip>
+          </v-list-item>
+        </template>
 
-</div>
+        <template slot="selection" slot-scope="{ item, parent, selected }">
+          <v-chip :v-model="selected" :color="getColorByHash(item)" class="lighten-3" label small>
+            <span class="pr-2">{{ item }}</span>
+            <v-icon small @click="parent.selectItem(item)">close</v-icon>
+          </v-chip>
+        </template>
+
+      </v-combobox>
+    </v-menu>
+
+  </div>
 </template>
 <script>
 import draggable from 'vuedraggable'
@@ -295,17 +325,16 @@ export default {
       tag: {
         editing: false,
         listIndex: null,
-        x: NaN, y: NaN,
+        x: NaN,
+        y: NaN,
         value: [],
         input: '',
       },
-      // tagInView: null,
+      panel: [],
     }
   },
   watch: {
-    // '$route.query.p': 'updateExpandStatus',
     listsToDisplay: 'updateExpandStatus',
-    // '$route.params.tag': 'setTagInView'
   },
   computed: {
     ...mapGetters(['inPageLists', 'getPageLength', 'taggedList', 'indexedLists', 'pinnedList']),
@@ -322,7 +351,20 @@ export default {
         : this.indexedLists
     },
     listsInView() {
-      return this.inPageLists(this.currentPage, this.listsToDisplay)
+      let tabListsInView = this.inPageLists(this.currentPage, this.listsToDisplay)
+      // console.debug('listsInView', tabListsInView)
+      let panelValueToUpdate = []
+
+      for (let i = 0; i < tabListsInView.length; i++) {
+        const tabList = tabListsInView[i]
+        // if (tabList.expand === true) {
+        //   panelValueToUpdate.push(tabList.index)
+        // }
+        panelValueToUpdate.push(tabList.index)
+      }
+      this.panel = panelValueToUpdate
+
+      return tabListsInView
     },
     pageLength() {
       return this.getPageLength(this.listsToDisplay.length)
@@ -330,6 +372,7 @@ export default {
   },
   created() {
     this.init()
+    // console.log('lists', this.lists)
   },
   activated() {
     if (this.$route.query.listIndex != null) this.jumpTo(this.$route.query)
@@ -356,7 +399,6 @@ export default {
     ]),
     init() {
       if (DEBUG) window.dl = this
-      // this.setTagInView()
       this.getLists().then(() => {
         this.updateExpandStatus()
         if (!this.processed) {
@@ -376,6 +418,7 @@ export default {
       return this.listsInView.map(i => i.expand !== false)
     },
     expandStatusChanged(newStatus) {
+      // console.debug('expandStatusChanged', newStatus)
       const indexInPage = this.expandStatus.findIndex((s, i) => s !== newStatus[i])
       if (!~indexInPage) return
       const index = indexInPage + (this.currentPage - 1) * this.opts.listsPerPage
@@ -388,6 +431,7 @@ export default {
         this.expandStatus = this.listsToDisplay.map(() => true)
       } else {
         this.expandStatus = this.getExpandStatus()
+        // console.debug('updateExpandStatus', this.expandStatus)
       }
     },
     getDomain(url) {
@@ -423,11 +467,13 @@ export default {
       const list = this.lists[this.rightClickedListIndex]
       const selectedItems = []
       list.tabs.forEach((tab, tabIndex) => {
-        if (tab.selected) selectedItems.push({
-          // for avoid to change old functions
-          listIndex: this.rightClickedListIndex,
-          tabIndex,
-        })
+        if (tab.selected) {
+          selectedItems.push({
+            // for avoid to change old functions
+            listIndex: this.rightClickedListIndex,
+            tabIndex,
+          })
+        }
       })
       return selectedItems
     },
@@ -435,15 +481,22 @@ export default {
       const items = this.getSelectedItems()
       if (!(items && items.length)) return
       const changedLists = [targetListIndex]
-      const tabs = items.map(({listIndex, tabIndex}) => {
+      const tabs = items.map(({
+        listIndex,
+        tabIndex,
+      }) => {
         changedLists.push(listIndex)
         return this.lists[listIndex].tabs[tabIndex]
       })
       items.sort((a, b) => b.tabIndex - a.tabIndex)
-        .forEach(({listIndex, tabIndex}) => this.removeTabDirectly([listIndex, tabIndex]))
+        .forEach(({
+          listIndex,
+          tabIndex,
+        }) => this.removeTabDirectly([listIndex, tabIndex]))
 
       if (targetListIndex === -1) {
         const newList = createNewTabList({tabs})
+        // console.debug('newList', newList)
         this.addList([newList])
         this.tabMoved(changedLists.map(i => i + 1)) // it will create a new list
       } else {
@@ -454,14 +507,20 @@ export default {
     openSelectedItems() {
       const items = this.getSelectedItems()
       if (!(items && items.length)) return
-      const toRestoredTabs = items.map(({listIndex, tabIndex}) => this.lists[listIndex].tabs[tabIndex])
+      const toRestoredTabs = items.map(({
+        listIndex,
+        tabIndex,
+      }) => this.lists[listIndex].tabs[tabIndex])
       return tabs.restoreTabs(toRestoredTabs)
     },
     duplicateSelectedItems() {
       const items = this.getSelectedItems()
       if (!(items && items.length)) return
       const changedLists = []
-      items.forEach(({listIndex, tabIndex}) => {
+      items.forEach(({
+        listIndex,
+        tabIndex,
+      }) => {
         changedLists.push(listIndex)
         this.addTab([listIndex, this.lists[listIndex].tabs[tabIndex]])
       })
@@ -470,7 +529,10 @@ export default {
     async copyLinksOfSelectedItems() {
       const items = this.getSelectedItems()
       if (!(items && items.length)) return
-      const text = items.map(({listIndex, tabIndex}) => {
+      const text = items.map(({
+        listIndex,
+        tabIndex,
+      }) => {
         const tab = this.lists[listIndex].tabs[tabIndex]
         return tab.url
       }).join('\n')
@@ -479,7 +541,10 @@ export default {
     async copyTitleOfSelectedItems() {
       const items = this.getSelectedItems()
       if (!(items && items.length)) return
-      const text = items.map(({listIndex, tabIndex}) => {
+      const text = items.map(({
+        listIndex,
+        tabIndex,
+      }) => {
         const tab = this.lists[listIndex].tabs[tabIndex]
         return tab.title
       }).join('\n')
@@ -487,10 +552,14 @@ export default {
     },
     removeSelectedItems() {
       const items = this.getSelectedItems()
+      // console.log('removeSelectedItems', items)
       if (!(items && items.length)) return
       const changedLists = []
       items.sort((a, b) => b.tabIndex - a.tabIndex)
-        .forEach(({listIndex, tabIndex}) => {
+        .forEach(({
+          listIndex,
+          tabIndex,
+        }) => {
           changedLists.push(listIndex)
           this.removeTabDirectly([listIndex, tabIndex])
         })
@@ -498,14 +567,21 @@ export default {
     },
     changePage(page) {
       const {path} = this.$route
-      this.$router.push({path, query: {p: page}})
+      this.$router.push({
+        path,
+        query: {p: page},
+      })
     },
     selectAllBtnClicked(listIndex) {
+      // console.debug('selectAllBtnClicked', listIndex)
       const list = this.lists[listIndex]
       const targetStatus = list.tabs.every(tab => !tab.selected)
       for (let i = 0; i < list.tabs.length; i += 1) {
         this.tabSelected([listIndex, i, targetStatus])
       }
+    },
+    singleTabChecked(parameterArray){
+
     },
     multiOpBtnClicked(listIndex, $event) {
       this.showMenu = false
@@ -518,7 +594,10 @@ export default {
     },
     async jumpTo(item) {
       const page = (item.listIndex / this.opts.listsPerPage << 0) + 1
-      this.$router.replace({name: 'detailList', query: {p: page}})
+      this.$router.replace({
+        name: 'detailList',
+        query: {p: page},
+      })
       await this.$nextTick()
       const opt = {
         duration: 500,
@@ -537,12 +616,9 @@ export default {
         this.currentHighlightItem.$el.classList.add('elevation-20')
       }, 0)
     },
-    async foldAll() {
-      this.listsInView.forEach(list => {
-        this.expandList([false, list.index])
-      })
-      await this.$nextTick()
-      return this.updateExpandStatus()
+    async collapseAll() {
+      // console.debug('collapseAll')
+      this.panel = []
     },
     editTag(listIndex, $event) {
       this.tag.listIndex = listIndex
@@ -554,10 +630,14 @@ export default {
     tagChanged(tags) {
       this.setTags([this.tag.listIndex, tags])
     },
-    // setTagInView() {
-    //   this.tagInView = this.$route.params.tag
-    // }
-  }
+    changeTabListTitleBtnClicked(tabListIndex){
+      // console.debug('changeTabListTitleBtnClicked', tabListIndex)
+      this.openChangeTitle(tabListIndex)
+    },
+    onTabListExpandChange(changeValue) {
+      // console.debug('onTabListExpandChange', changeValue)
+    },
+  },
 }
 </script>
 <style lang="scss" scoped>
@@ -565,46 +645,57 @@ export default {
   width: 136px;
   height: 110px;
   padding: 5px;
+
   .color-selector {
     display: inline-block;
     width: 26px;
     height: 26px;
     border-radius: 13px;
     border: 2px solid white !important;
+
     &:hover {
       border: 2px solid gray !important;
     }
   }
 }
+
 .date {
-  font-size: 100%;
+  font-size: 12px;
+  margin-left: 12px;
 }
+
 .title-editor {
   padding: 0;
   position: absolute;
   display: inline-flex;
-  width: 80%;
-  /deep/ .v-input__slot {
-    min-height: 32px !important;
-  }
-  /deep/ input {
-    margin-top: 0 !important;
-  }
+  width: 40%;
+  font-size: 24px;
+  margin-left: 100px;
 }
+
 .list-title {
   position: absolute;
   display: inline-block;
   line-height: 34px;
   padding: 0 12px;
 }
+
 .font-size-12px {
   font-size: 12px;
 }
+
 .font-size-18px {
   font-size: 18px;
 }
+
 .font-size-24px {
   font-size: 24px;
+  margin-left: 100px;
+  border-bottom: 2px solid #8bc34a !important;
+}
+
+.font-size-36px {
+  font-size: 36px;
 }
 
 .tab-list {
@@ -613,11 +704,13 @@ export default {
     width: 30px;
     height: 30px;
   }
+
   .icon-in-title {
     .gray--text {
       display: none;
     }
   }
+
   &:hover {
     .icon-in-title {
       .gray--text {
@@ -625,44 +718,57 @@ export default {
       }
     }
   }
+
   .checkbox-column {
     max-width: 40px;
-    margin-left: 16px;
+    margin-left: 40px;
+
     .checkbox {
-      margin-left: 20px;
+      margin-left: 0;
       margin-top: 0;
-      padding-top: (40px - 24px) / 2;
+      //padding-top: (40px - 24px) / 2;
     }
   }
 }
+
 .sortable-ghost, .sortable-chosen {
   opacity: .5;
-  box-shadow: 0 3px 3px -2px rgba(0,0,0,.2), 0 3px 4px 0 rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
+  box-shadow: 0 3px 3px -2px rgba(0, 0, 0, .2), 0 3px 4px 0 rgba(0, 0, 0, .14), 0 1px 8px 0 rgba(0, 0, 0, .12);
+
   &.list-item {
     .drag-indicator {
       display: flex;
     }
   }
 }
+
 .sortable-drag {
   opacity: 0;
 }
+
 .list-item {
   padding-bottom: 20px;
+  padding-left: 4px;
+
   .checkbox {
-    margin-left: 20px;
+    margin-right: 5px;
+    margin-top: 0;
   }
+
   .clear-btn {
     display: none;
   }
+
   &:hover {
     .clear-btn {
       display: block;
     }
+
     .drag-indicator {
       display: flex;
     }
   }
+
   .drag-indicator {
     position: absolute;
     cursor: move;
@@ -671,6 +777,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     height: 100%;
+
     i {
       display: inline-block;
       width: 16px;
@@ -681,7 +788,9 @@ export default {
     }
   }
 }
+
 .no-list-tip {
   user-select: none;
 }
 </style>
+`

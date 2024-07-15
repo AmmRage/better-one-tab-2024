@@ -4,13 +4,13 @@ env:
   webextensions: true
 extends:
   - plugin:vue/base
-  - '@cnwangjie/eslint-config'
 parserOptions:
   parser: babel-eslint
   ecmaVersion: 8
   sourceType: module
 rules:
   no-console: 0
+  linebreak-style: 'off'
 globals:
   DEBUG: true
   PRODUCTION: true
