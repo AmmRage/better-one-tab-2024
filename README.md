@@ -20,3 +20,12 @@ forked from [cnwangjie/better-onetab](https://github.com/cnwangjie/better-onetab
 ## Statement
 
 **for all unmentioned wonder-how-and-why, please refer to the original repo**
+
+## Migration
+
+due to the chrome new versions deprecated some apis that the extension used, will try upgrade to `manifest v3`
+
+- [x] upgrade `manifest.json` to v3
+- [ ] replace `windows` with self
+- [ ] replace communication via `getBackgroundPage` property to `chrome.runtime.sendMessage` and `chrome.runtime.onMessage.addListener`
+- [x] update background js to worker
