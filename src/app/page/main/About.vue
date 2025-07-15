@@ -64,9 +64,13 @@ export default {
     init() {
       const manifest = chrome.runtime.getManifest()
       this.version = manifest.version
-      chrome.runtime.getBackgroundPage(background => {
-        this.update = background.update || ''
-      })
+
+      chrome.runtime.sendMessage({type: "getBackgroundPage", data: "update"}, response => {
+        console.log(response)
+        // this.update = background.update || ''
+      });
+
+      // get the storage usage
       chrome.storage.local.getBytesInUse(null, count => {
         this.storageUsage = count
       })

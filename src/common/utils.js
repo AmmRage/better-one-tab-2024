@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import __ from './i18n'
 import moment from 'moment'
-import {COLORS} from './constants'
+import { COLORS } from './constants'
 import browser from 'webextension-polyfill'
 
 moment.locale(__('@@ui_locale'))
@@ -28,8 +28,8 @@ export const one = fn => {
   }
 }
 export const checkPermission = async permission => {
-  if (await browser.permissions.contains({permissions: [permission]})) return true
-  return browser.permissions.request({permissions: [permission]})
+  if (await browser.permissions.contains({ permissions: [permission] })) return true
+  return browser.permissions.request({ permissions: [permission] })
 }
 export const readFile = file => new Promise((resolve, reject) => {
   const reader = new FileReader()
@@ -43,8 +43,12 @@ export const genObjectId = () => {
   return timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => (Math.random() * 16 | 0).toString(16)).toLowerCase()
 }
 export const isBackground = async () => {
-  if (window._isBackground == null) window._isBackground = window === await browser.runtime.getBackgroundPage()
-  return window._isBackground
+  console.log('isBackground： ', self)
+  if (self._isBackground == null) {
+    // self._isBackground = self === await browser.runtime.getBackgroundPage()
+    self._isBackground = false;
+  }
+  return self._isBackground
 }
 export const formatSize = bytes => {
   // refer: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string

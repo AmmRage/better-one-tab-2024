@@ -103,8 +103,8 @@ const getInfo = () => {
 }
 
 const setWSToken = token => {
-  if (!window._socket) return
-  window._socket.io.opts.query = {
+  if (!self._socket) return
+  self._socket.io.opts.query = {
     [AUTH_HEADER]: token,
   }
 }
@@ -116,7 +116,7 @@ const _socketEmitTimeout = (socket, event, arg) => timeout(new Promise((resolve,
 }), 5000)
 
 const uploadOpsViaWS = async () => {
-  const socket = window._socket
+  const socket = self._socket
   if (!socket || !socket.connected) throw new Error('socket not connected')
   const {ops} = await browser.storage.local.get('ops')
   if (ops) {
@@ -130,7 +130,7 @@ const uploadOpsViaWS = async () => {
 }
 
 const downloadRemoteLists = async () => {
-  const socket = window._socket
+  const socket = self._socket
   if (!socket || !socket.connected) throw new Error('socket not connected')
   const remoteTime = await _socketEmitTimeout(socket, 'list.time')
   const {listsUpdatedAt: localTime} = await browser.storage.local.get('listsUpdatedAt')
@@ -171,11 +171,11 @@ const syncLists = async () => {
   }
 }
 
-const getRemoteOptionsUpdatedTimeViaWS = () => _socketEmitTimeout(window._socket, 'opts.time')
+const getRemoteOptionsUpdatedTimeViaWS = () => _socketEmitTimeout(self._socket, 'opts.time')
 
-const getRemoteOptions = () => _socketEmitTimeout(window._socket, 'opts.all')
+const getRemoteOptions = () => _socketEmitTimeout(self._socket, 'opts.all')
 
-const setRemoteOptions = (opts, time) => _socketEmitTimeout(window._socket, 'opts.set', { opts, time })
+const setRemoteOptions = (opts, time) => _socketEmitTimeout(self._socket, 'opts.set', { opts, time })
 
 const syncOptions = async () => {
   const remoteTime = await getRemoteOptionsUpdatedTimeViaWS()
@@ -241,13 +241,13 @@ const login = async token => {
 }
 
 const initTimer = async () => {
-  if (window._syncTimer || !(await isBackground())) return
+  if (self._syncTimer || !(await isBackground())) return
 
   const _nextTimer = time => {
-    window._syncTimer = setTimeout(async () => {
+    self._syncTimer = setTimeout(async () => {
       if (await hasToken()) {
         // getInfo() // for update token
-        if (window._socket && window._socket.connected) {
+        if (self._socket && self._socket.connected) {
           refresh()
           return _nextTimer(time)
         }
@@ -257,21 +257,21 @@ const initTimer = async () => {
   }
 
   const _refreshTimer = time => {
-    clearTimeout(window._syncTimer)
+    clearTimeout(self._syncTimer)
     _nextTimer(time)
   }
 
-  window.addEventListener('offline', () => _refreshTimer(SYNC_MAX_INTERVAL))
-  window.addEventListener('online', () => _refreshTimer(SYNC_MIN_INTERVAL))
+  self.addEventListener('offline', () => _refreshTimer(SYNC_MAX_INTERVAL))
+  self.addEventListener('online', () => _refreshTimer(SYNC_MIN_INTERVAL))
   browser.runtime.onMessage.addListener(({login, refreshed}) => {
-    if (login || refreshed && refreshed.success) window._nextSyncInterval = SYNC_MIN_INTERVAL
+    if (login || refreshed && refreshed.success) self._nextSyncInterval = SYNC_MIN_INTERVAL
   })
   _nextTimer(SYNC_MIN_INTERVAL)
 }
 
 const init = async () => {
-  if (window._socket || !await isBackground()) return
-  const socket = window._socket = io(SYNC_SERVICE_URL, {path: '/ws', autoConnect: false})
+  if (self._socket || !await isBackground()) return
+  const socket = self._socket = io(SYNC_SERVICE_URL, {path: '/ws', autoConnect: false})
   setWSToken(await getToken())
   await listManager.init()
   socket.on('list.update', ({method, args}) => {

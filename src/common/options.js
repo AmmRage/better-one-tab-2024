@@ -290,7 +290,7 @@ const availableOptionsList = optionsList.filter(i => !i.deprecated)
 
 if (DEBUG) {
   console.debug('current options number', availableOptionsList.length)
-  window.printOptionsMap = () => console.debug(availableOptionsList.map(i => i.name + ': ' + i.type.name + ',').join('\n'))
+  self.printOptionsMap = () => console.debug(availableOptionsList.map(i => i.name + ': ' + i.type.name + ',').join('\n'))
 }
 
 const _defaultOptions = _.mapValues(_.keyBy(availableOptionsList, 'name'), i => i.default)

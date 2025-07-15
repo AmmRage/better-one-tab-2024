@@ -32,21 +32,21 @@ if (PRODUCTION) {
 }
 
 if (DEBUG) {
-  window.browser = browser
-  window.listManager = listManager
-  window.boss = boss
-  browser.browserAction.setBadgeText({text: 'dev'})
+  self.browser = browser
+  self.listManager = listManager
+  self.boss = boss
+  browser.action.setBadgeText({text: 'dev'})
   import(
     /* webpackChunkName: "helper", webpackMode: "lazy" */
     '../common/helper'
     ).then(helper => {
-    window.helper = helper
+    self.helper = helper
   })
 }
 
 const initOptions = async () => {
   // mount the `opts` to global
-  const opts = window.opts = await storage.getOptions() || {}
+  const opts = self.opts = await storage.getOptions() || {}
   const defaultOptions = options.getDefaultOptions()
 
   // set it as default value if there is an option not in current options
@@ -56,14 +56,14 @@ const initOptions = async () => {
   }
 
   // init nightmode status
-  window.nightmode = opts.defaultNightMode
+  self.nightmode = opts.defaultNightMode
   return opts
 }
 
 const storageChangedHandler = changes => {
   // console.debug('[storage changed]', changes)
   if (changes.boss_token) {
-    window.boss_token = changes.boss_token
+    self.boss_token = changes.boss_token
   }
   if (changes.lists) {
     if (changes.lists.newValue && changes.lists.newValue.length) {
@@ -154,14 +154,14 @@ const storageChangedHandler = changes => {
         }
       })
     }
-    if (window.opts.disableDynamicMenu) return
-    setupContextMenus(window.opts)
+    if (self.opts.disableDynamicMenu) return
+    setupContextMenus(self.opts)
   }
 }
 
 const tabsChangedHandler = activeInfo => {
-  if (window.opts.disableDynamicMenu) return
-  window.coverBrowserAction(activeInfo)
+  if (self.opts.disableDynamicMenu) return
+  self.coverBrowserAction(activeInfo)
   dynamicDisableMenu(activeInfo)
 }
 
@@ -176,6 +176,8 @@ const fixDirtyData = async () => {
 }
 
 const init = async () => {
+  console.log('init')
+
   logger.init()
   await listManager.init()
   const opts = await initOptions()
@@ -186,11 +188,11 @@ const init = async () => {
     browser.runtime.onMessageExternal.addListener(commandHandler),
     browser.runtime.onMessage.addListener(messageHandler),
     browser.runtime.onUpdateAvailable.addListener(detail => {
-      window.update = detail.version
+      self.update = detail.version
     }),
     browser.runtime.onInstalled.addListener(installedEventHandler),
-    browser.browserAction.onClicked.addListener(() => window.browswerActionClickedHandler()),
-    browser.contextMenus.onClicked.addListener(info => window.contextMenusClickedHandler(info)),
+    browser.action.onClicked.addListener(() => self.browswerActionClickedHandler()),
+    browser.contextMenus.onClicked.addListener(info => self.contextMenusClickedHandler(info)),
     browser.tabs.onActivated.addListener(_.debounce(tabsChangedHandler, 200)),
     browser.storage.onChanged.addListener(storageChangedHandler),
   ])

@@ -8,12 +8,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=development webpack --config webpack.dev.js --watch",
-    "dev:moz": "cross-env MOZ=1 yarn dev",
+    "dev:moz": "cross-env MOZ=1 pnpm dev",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack --config webpack.prod.js",
-    "postbuild": "yarn run package",
-    "package": "del /f dist.zip & powershell -Command \"Compress-Archive -Path 'dist\\*' -CompressionLevel Optimal -DestinationPath 'dist.zip' -Force\"",
     "lint": "eslint src --ext js,vue",
-    "prebuild": "yarn lint"
+    "prebuild": "pnpm lint"
   },
   "dependencies": {
     "@babel/runtime": "^7.24.7",

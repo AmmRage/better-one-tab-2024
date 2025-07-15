@@ -67,12 +67,8 @@ const app = new Vue({
 })
 
 if (DEBUG) {
-  window.app = app
+  self.app = app
   import('webextension-polyfill').then(browser => {
-    window.browser = browser.default
-  })
-  import('@/common/service/gdrive').then(gt => {
-    window.gt = gt
-    window.gdrive = gt.default
+    self.browser = browser.default
   })
 }

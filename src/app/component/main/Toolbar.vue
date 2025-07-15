@@ -283,10 +283,10 @@ export default {
     ...mapActions(['switchNightMode', 'switchDrawer']),
     init() {
       this.onScroll()
-      window.addEventListener('online', () => {
+      self.addEventListener('online', () => {
         this.online = true
       })
-      window.addEventListener('offline', () => {
+      self.addEventListener('offline', () => {
         this.online = false
       })
       chrome.runtime.onMessage.addListener(msg => {
@@ -304,7 +304,7 @@ export default {
       })
     },
     onScroll() {
-      this.setScrollY(window.pageYOffset || document.documentElement.scrollTop)
+      this.setScrollY(self.pageYOffset || document.documentElement.scrollTop)
       this.flat = this.scrollY === 0
     },
     logoutBtnClicked() {

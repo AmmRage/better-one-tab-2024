@@ -10,27 +10,34 @@ const getAllInWindow = windowId => browser.tabs.query({windowId})
 
 const openTabLists = async () => {
   // open only one in a window
-  const window = await browser.runtime.getBackgroundPage()
-  if (!_.isObject(window.appTabId)) window.appTabId = {}
+
+  const backgroundPageAppTabId = {};
+  chrome.runtime.sendMessage({type: "getBackgroundPage", data: "appTabId"}, response => {
+    console.log(response)
+    // backgroundPageAppTabId = response.appTabId
+  });
+
+
+  if (!_.isObject(backgroundPageAppTabId)) backgroundPageAppTabId = {}
   const currentWindow = await browser.windows.getCurrent()
   const windowId = currentWindow.id
   const tabListsUrl = browser.runtime.getURL('index.html#/app/')
-  if (windowId in window.appTabId) {
+  if (windowId in backgroundPageAppTabId) {
     const tabs = await getAllInWindow(windowId)
-    const tab = tabs.find(tab => tab.id === window.appTabId[windowId])
+    const tab = tabs.find(tab => tab.id === backgroundPageAppTabId[windowId])
     if (tab) {
       if (tab.url.startsWith(tabListsUrl)) {
         return browser.tabs.update(tab.id, { active: true })
       }
-      delete window.appTabId[windowId]
+      delete backgroundPageAppTabId[windowId]
     }
   }
   const createdTab = await browser.tabs.create({url: tabListsUrl})
-  window.appTabId[windowId] = createdTab.id
+  backgroundPageAppTabId[windowId] = createdTab.id
 }
 
 const openAboutPage = () => {
-  window.open(browser.runtime.getURL('index.html#/app/about'))
+  self.open(browser.runtime.getURL('index.html#/app/about'))
 }
 
 const getSelectedTabs = () => browser.tabs.query({highlighted: true, currentWindow: true})
@@ -108,12 +115,12 @@ const storeAllTabs = async listIndex => {
 }
 
 const storeAllTabInAllWindows = async () => {
-  const windows = await browser.windows.getAll()
+  const windowsArray = await browser.windows.getAll()
   const opts = await storage.getOptions()
   if (opts.openTabListNoTab) await openTabLists()
   const tasks = []
-  for (const window of windows) {
-    const task = getAllInWindow(window.id).then(storeTabs)
+  for (const windowElement of windowsArray) {
+    const task = getAllInWindow(windowElement.id).then(storeTabs)
     tasks.push(task)
   }
   return Promise.all(tasks)

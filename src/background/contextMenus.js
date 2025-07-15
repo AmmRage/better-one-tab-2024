@@ -73,7 +73,7 @@ export const dynamicDisableMenu = async lists => {
 
 const createMenus = async (obj, parent, contexts, lists) => {
   if (obj === menus.STORE_TO_TITLED_LIST) {
-    if (window.opts.disableDynamicMenu) return
+    if (self.opts.disableDynamicMenu) return
     for (let listIndex = 0; listIndex < lists.length; listIndex += 1) {
       if (!lists[listIndex].title) continue
       const prop = {
@@ -121,7 +121,7 @@ export const setupContextMenus = async ({pageContext, allContext}) => {
     if (allContext) contexts.push(browser.contextMenus.ContextType.ALL)
   }
   const lists = await storage.getLists()
-  window.contextMenusClickedHandler = info => {
+  self.contextMenusClickedHandler = info => {
     // console.log('context menu clicked', info.menuItemId)
     if (info.menuItemId.startsWith('STORE_TO_TITLED_LIST')) {
       const [key, listIndex] = info.menuItemId.split('|')

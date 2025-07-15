@@ -11,7 +11,7 @@ const messageHandler = async msg => {
   if (msg.optionsChanged) {
     const changes = msg.optionsChanged
     console.debug('options changed', changes)
-    Object.assign(window.opts, changes)
+    Object.assign(self.opts, changes)
     if (changes.browserAction) updateBrowserAction(changes.browserAction)
     if (['pageContext', 'allContext', 'disableDynamicMenu'].some(k => k in changes)) await setupContextMenus(changes)
     await sendMessage({optionsChangeHandledStatus: 'success'})

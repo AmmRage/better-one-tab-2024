@@ -398,7 +398,7 @@ export default {
       'tabMoved', 'setTags',
     ]),
     init() {
-      if (DEBUG) window.dl = this
+      if (DEBUG) self.dl = this
       this.getLists().then(() => {
         this.updateExpandStatus()
         if (!this.processed) {

@@ -64,7 +64,6 @@
 import __ from '@/common/i18n'
 import exchange from '@/common/exchange'
 import {readFile} from '@/common/utils'
-import gdrive from '@/common/service/gdrive'
 import {mapMutations, mapActions, mapState} from 'vuex'
 import {ADD_LIST} from '@/common/constants'
 import logger from '@/common/logger'
@@ -146,17 +145,7 @@ export default {
       }
     },
     async saveToGdrive() {
-      this.saving = true
-      try {
-        await gdrive.saveCurrentTabLists()
-        this.showSnackbar(__('ui_main_succeeded'))
-      } catch (e) {
-        logger.error(e)
-        this.showSnackbar(__('ui_main_error_occurred'))
-        gdrive.clearToken()
-      } finally {
-        this.saving = false
-      }
+      self.alert('do not support')
     },
   }
 }

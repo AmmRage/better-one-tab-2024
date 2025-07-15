@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__EXT_NAME__",
   "version": "1.4.7",
   "default_locale": "en",
@@ -11,30 +11,23 @@
     "128": "assets/icons/icon_128.png"
   },
   "background": {
-    "scripts": [
-      "background.js"
-    ]
+    "service_worker": "background.js"
   },
   "commands": {
     "store-selected-tabs": {
-      "description": "__MSG_cmd_store_selected_tabs__",
-      "global": true
+      "description": "__MSG_cmd_store_selected_tabs__"
     },
     "store-all-tabs": {
-      "description": "__MSG_cmd_store_all_tabs__",
-      "global": true
+      "description": "__MSG_cmd_store_all_tabs__"
     },
     "restore-lastest-list": {
-      "description": "__MSG_cmd_restore_lastest_list__",
-      "global": true
+      "description": "__MSG_cmd_restore_lastest_list__"
     },
     "open-lists": {
-      "description": "__MSG_cmd_open_lists__",
-      "global": true
+      "description": "__MSG_cmd_open_lists__"
     },
     "store-all-in-all-windows": {
-      "description": "__MSG_cmd_store_all_in_all_windows__",
-      "global": true
+      "description": "__MSG_cmd_store_all_in_all_windows__"
     }
   },
   "content_scripts": [
@@ -43,7 +36,7 @@
       "js": ["content.js"]
     }
   ],
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "assets/icons/icon_16.png",
       "24": "assets/icons/icon_48.png",
@@ -58,6 +51,9 @@
     "identity",
     "notifications"
   ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "homepage_url": "https://github.com/AmmRage/better-one-tab-2024",
   "oauth2": {
     "client_id": "__CLIENT_ID__",
@@ -71,5 +67,7 @@
     "page": "index.html#/app/options",
     "open_in_tab": true
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.google-analytics.com https://apis.google.com __DEV_CSP__; object-src 'self'"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

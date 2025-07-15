@@ -76,23 +76,55 @@ const store = new Vuex.Store({
       commit('setUsername', name)
     },
     async loadDrawer({commit}) {
-      const window = await browser.runtime.getBackgroundPage()
-      window.drawer = _.defaultTo(window.drawer, true)
-      commit('setDrawer', window.drawer)
+      //
+      const backgroundPageDrawer= false;
+      chrome.runtime.sendMessage({type: "getBackgroundPage", data: "drawer"}, response => {
+        console.log(response)
+        // backgroundPageDrawer = response.drawer
+      });
+      // backgroundPage.drawer = _.defaultTo(backgroundPageDrawer, true)
+      chrome.runtime.sendMessage({type: "setBackgroundPage", data: "drawer"}, response => {
+        console.log(response)
+      });      
+      commit('setDrawer', backgroundPageDrawer)
     },
     async switchDrawer({commit, state}) {
-      const window = await browser.runtime.getBackgroundPage()
-      commit('setDrawer', window.drawer = !state.drawer)
+      const backgroundPageDrawer= false;
+      chrome.runtime.sendMessage({type: "getBackgroundPage", data: "drawer"}, response => {
+        console.log(response)
+        // backgroundPageDrawer = response.drawer
+      });
+
+      commit('setDrawer', backgroundPageDrawer = !state.drawer)
     },
     async loadNightmode({commit, state}) {
-      const window = await browser.runtime.getBackgroundPage()
-      window.nightmode = _.defaultTo(window.nightmode, state.opts.defaultNightMode)
-      commit('setNightmode', window.nightmode)
+      const backgroundPageNightmode = false;
+      // get value
+      chrome.runtime.sendMessage({type: "getBackgroundPage", data: "nightmode"}, response => {
+        console.log(response)
+        // backgroundPageNightmode = response.nightmode
+      });
+
+      // set value
+      chrome.runtime.sendMessage({type: "setBackgroundPage", data: {
+        type:"nightmode",
+        value: _.defaultTo(backgroundPageNightmode, state.opts.defaultNightMode)
+      }}, response => {
+        console.log(response)
+      });     
+
+      commit('setNightmode', backgroundPageNightmode)
     },
+    
     async switchNightMode({commit, state}) {
-      const window = await browser.runtime.getBackgroundPage()
-      commit('setNightmode', window.nightmode = !state.nightmode)
+      const backgroundPageNightmode = false;
+      chrome.runtime.sendMessage({type: "getBackgroundPage", data: "nightmode"}, response => {
+        console.log(response)
+        // backgroundPageNightmode = response.nightmode
+      });
+      commit('setNightmode', backgroundPageNightmode = !state.nightmode)
     },
+    
     async showSnackbar({commit}, message) {
       commit('setSnackbar', message)
       await sleep(2000)

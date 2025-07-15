@@ -76,8 +76,13 @@ export default {
       return title
     },
     async switchNightMode() {
-      const window = await browser.runtime.getBackgroundPage()
-      if ('nightmode' in window) this.nightmode = window.nightmode || false
+      const backgroundPageNightmode = false;
+      chrome.runtime.sendMessage({type: "getBackgroundPage", data: "nightmode"}, response => {
+        console.log(response)
+        // backgroundPageNightmode = response.nightmode
+      });
+
+      this.nightmode = backgroundPageNightmode
     },
     async init() {
       this.switchNightMode()

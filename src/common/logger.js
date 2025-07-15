@@ -7,10 +7,10 @@ import manifest from '../manifest.json'
 const logger = {}
 
 const genMethods = () => {
-  for (const method in window.console) {
-    if (typeof window.console[method] !== 'function') continue
+  for (const method in self.console) {
+    if (typeof self.console[method] !== 'function') continue
     logger[method] = (...args) => {
-      window.console[method](...args)
+      self.console[method](...args)
       args.forEach(arg => {
         if (arg instanceof Error) Sentry.captureException(arg)
         else Sentry.addBreadcrumb({data: arg, level: method})
@@ -22,7 +22,7 @@ const genMethods = () => {
 logger.init = (opts = {}) => {
   genMethods()
   if (DEBUG) {
-    window.Sentry = Sentry
+    self.Sentry = Sentry
     return
   }
 

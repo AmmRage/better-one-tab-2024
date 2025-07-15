@@ -26,6 +26,7 @@ const resolve = (...paths) => path.join(__dirname, ...paths)
 const mode = process.env.NODE_ENV || 'development'
 const moz = process.env.MOZ
 module.exports = {
+  target: 'webworker',
   entry: {
     app: ['./src/app/index.js'],
     background: ['./src/background/index.js'],
